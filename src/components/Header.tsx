@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Search, Bell, Eye, Smartphone } from 'lucide-react';
+import { Search, Bell, Eye, Volume2, VolumeX, Smartphone } from 'lucide-react';
 import type { AccessibilitySettings } from '../types';
+import { tts } from '../utils/ttsEngine';
 
 interface HeaderProps {
   currentTab: 'catalog' | 'player' | 'certificates' | 'progress';
@@ -26,6 +27,12 @@ export const Header: React.FC<HeaderProps> = ({
     { id: '1', title: 'Novo Módulo Disponível!', desc: 'Informática Básica: Módulo 2 adicionado.', time: 'Há 10 min' },
     { id: '2', title: 'Parabéns!', desc: 'Seu certificado de Web Front-End está pronto.', time: 'Ontem' }
   ];
+
+  const toggleTTS = () => {
+    const nextState = !accessibility.audioDescription;
+    setAccessibility(prev => ({ ...prev, audioDescription: nextState }));
+    tts.setEnabled(nextState);
+  };
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-xs">
@@ -93,6 +100,30 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Right Actions */}
         <div className="flex items-center space-x-2 sm:space-x-4">
           
+          {/* Native TTS (Audio Reader) Toggle Button */}
+          <button
+            onClick={toggleTTS}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-xs border transition-colors ${
+              accessibility.audioDescription
+                ? 'bg-emerald-100 text-emerald-800 border-emerald-300 animate-pulse'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
+            }`}
+            title={accessibility.audioDescription ? 'Desativar Leitor de Tela Nativo (TTS)' : 'Ativar Leitor de Tela Nativo (TTS / Voz)'}
+            aria-label="Leitor de Tela Nativo TTS"
+          >
+            {accessibility.audioDescription ? (
+              <>
+                <Volume2 className="w-4 h-4 text-emerald-700" />
+                <span className="hidden sm:inline">Voz Ativa</span>
+              </>
+            ) : (
+              <>
+                <VolumeX className="w-4 h-4 text-slate-500" />
+                <span className="hidden sm:inline">Ouvir Site</span>
+              </>
+            )}
+          </button>
+
           {/* PWA Install Button */}
           <button
             onClick={onOpenPWAInstall}
@@ -135,6 +166,24 @@ export const Header: React.FC<HeaderProps> = ({
                 </h4>
                 
                 <div className="space-y-3 text-sm">
+                  {/* TTS Toggle inside Menu */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-700">Leitor Voz (TTS)</span>
+                    <button
+                      onClick={toggleTTS}
+                      className={`w-10 h-6 rounded-full transition-colors relative ${
+                        accessibility.audioDescription ? 'bg-emerald-600' : 'bg-slate-300'
+                      }`}
+                    >
+                      <span
+                        className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                          accessibility.audioDescription ? 'translate-x-4' : ''
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* High Contrast */}
                   <div className="flex items-center justify-between">
                     <span className="text-slate-700">Alto Contraste</span>
                     <button
@@ -153,6 +202,7 @@ export const Header: React.FC<HeaderProps> = ({
                     </button>
                   </div>
 
+                  {/* Font Scale */}
                   <div className="space-y-1">
                     <span className="text-slate-700 block">Tamanho da Fonte</span>
                     <div className="flex items-center gap-2">

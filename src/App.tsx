@@ -11,6 +11,7 @@ import { CertificatesView } from './views/CertificatesView';
 import { ProgressView } from './views/ProgressView';
 import { INITIAL_COURSES, INITIAL_CERTIFICATES } from './data/coursesData';
 import type { Course, Certificate, AccessibilitySettings } from './types';
+import { tts } from './utils/ttsEngine';
 
 export const App: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<'catalog' | 'player' | 'certificates' | 'progress'>('catalog');
@@ -21,19 +22,18 @@ export const App: React.FC = () => {
   const [isExamOpen, setIsExamOpen] = useState(false);
   const [isPWAModalOpen, setIsPWAModalOpen] = useState(false);
 
-  // Initialize accessibility from Cookies if available
   const [accessibility, setAccessibility] = useState<AccessibilitySettings>(() => {
     const savedContrast = Cookies.get('acc_high_contrast') === 'true';
     const savedScale = parseFloat(Cookies.get('acc_font_scale') || '1');
+    const savedTTS = Cookies.get('acc_tts') === 'true';
     return {
       highContrast: savedContrast,
       fontScale: isNaN(savedScale) ? 1 : savedScale,
       vlibrasActive: true,
-      audioDescription: false
+      audioDescription: savedTTS
     };
   });
 
-  // Apply high contrast & font scale effect to document body and sync to Cookies
   useEffect(() => {
     if (accessibility.highContrast) {
       document.body.classList.add('high-contrast');
@@ -44,7 +44,25 @@ export const App: React.FC = () => {
 
     Cookies.set('acc_high_contrast', accessibility.highContrast.toString(), { expires: 30 });
     Cookies.set('acc_font_scale', accessibility.fontScale.toString(), { expires: 30 });
+    Cookies.set('acc_tts', accessibility.audioDescription.toString(), { expires: 30 });
   }, [accessibility]);
+
+  // Read screen content out loud automatically when changing tabs if TTS is enabled
+  useEffect(() => {
+    if (accessibility.audioDescription) {
+      let announcement = '';
+      if (currentTab === 'catalog') {
+        announcement = 'Você está na página de Catálogo de Cursos do Recife Digital. Explore cursos básicos e intermediários.';
+      } else if (currentTab === 'player') {
+        announcement = `Você está assistindo à aula do curso ${selectedCourse.title}.`;
+      } else if (currentTab === 'certificates') {
+        announcement = `Página de Meus Certificados. Você possui ${certificates.length} certificado emitido.`;
+      } else if (currentTab === 'progress') {
+        announcement = 'Página do seu Progresso. Veja suas horas estudadas e desempenho.';
+      }
+      tts.speak(announcement);
+    }
+  }, [currentTab, accessibility.audioDescription]);
 
   // Auto show PWA Install modal on first visit if not dismissed
   useEffect(() => {
@@ -59,6 +77,9 @@ export const App: React.FC = () => {
   const handleSelectCourse = (course: Course) => {
     setSelectedCourse(course);
     setCurrentTab('player');
+    if (accessibility.audioDescription) {
+      tts.speak(`Curso selecionado: ${course.title}. ${course.description}`);
+    }
   };
 
   const handleCompleteLesson = (lessonId: string) => {
@@ -139,7 +160,6 @@ export const App: React.FC = () => {
         </main>
       </div>
 
-      {/* Exam Modal */}
       {isExamOpen && (
         <QuizModal
           course={selectedCourse}
@@ -149,7 +169,6 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* PWA Install Modal with Device Detector */}
       <PWAInstallModal
         isOpen={isPWAModalOpen}
         onClose={() => setIsPWAModalOpen(false)}
