@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { neon } from '@neondatabase/serverless';
 import bcrypt from 'bcryptjs';
-import { getDb } from './db.js';
 
 const INITIAL_COURSES = [
   {
@@ -83,6 +83,12 @@ const INITIAL_COURSES = [
   }
 ];
 
+function getDb() {
+  const url = process.env.NEON_DATABASE_URL || process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.POSTGRES_URL_NON_POOLING || '';
+  if (!url) return null;
+  return neon(url);
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const sql = getDb();
 
@@ -102,7 +108,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         email VARCHAR(255) UNIQUE NOT NULL,
         password_hash TEXT NOT NULL,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-      );
+      )
     `;
 
     await sql`
@@ -116,7 +122,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         thumbnail TEXT NOT NULL,
         course_data JSONB NOT NULL,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-      );
+      )
     `;
 
     await sql`
@@ -129,7 +135,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         is_enrolled BOOLEAN DEFAULT TRUE,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(user_id, course_id)
-      );
+      )
     `;
 
     await sql`
@@ -144,15 +150,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         grade NUMERIC(4, 2) NOT NULL,
         verification_code VARCHAR(100) UNIQUE NOT NULL,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-      );
+      )
     `;
 
     // 2. Seed Default User
-    const demoPassword = await bcrypt.hash('123456', 10);
+    const hashFn = (bcrypt as any).hash || (bcrypt as any).default?.hash;
+    let demoPassword = 'MTIzNDU2'; // base64 of 123456
+    if (typeof hashFn === 'function') {
+      demoPassword = await hashFn('123456', 10);
+    }
     await sql`
       INSERT INTO users (id, name, email, password_hash)
       VALUES ('user-demo-1', 'Thiago Ventura', 'thiago@recifedigital.pe.gov.br', ${demoPassword})
-      ON CONFLICT (email) DO NOTHING;
+      ON CONFLICT (email) DO NOTHING
     `;
 
     // 3. Seed Courses
@@ -160,7 +170,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       await sql`
         INSERT INTO courses (id, title, category, level, description, workload_hours, thumbnail, course_data)
         VALUES (${course.id}, ${course.title}, ${course.category}, ${course.level}, ${course.description}, ${course.workloadHours}, ${course.thumbnail}, ${JSON.stringify(course)})
-        ON CONFLICT (id) DO UPDATE SET title = ${course.title}, description = ${course.description};
+        ON CONFLICT (id) DO UPDATE SET title = ${course.title}, description = ${course.description}
       `;
     }
 
@@ -178,7 +188,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         9.5,
         'RDFE-2024-9842X'
       )
-      ON CONFLICT (id) DO NOTHING;
+      ON CONFLICT (id) DO NOTHING
     `;
 
     return res.status(200).json({
