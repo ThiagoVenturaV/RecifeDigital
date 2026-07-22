@@ -23,13 +23,24 @@ export const App: React.FC = () => {
   const [selectedCourse, setSelectedCourse] = useState<Course>(INITIAL_COURSES[0]);
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Modals
+  // Modals & Auth State
   const [isExamOpen, setIsExamOpen] = useState(false);
   const [isPWAModalOpen, setIsPWAModalOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [infoModalType, setInfoModalType] = useState<'privacy' | 'terms' | 'support' | 'about' | null>(null);
-  const [userName, setUserName] = useState<string>('Thiago Ventura');
+  
+  // Session State
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
+    return !!Cookies.get('auth_token') || !!Cookies.get('user_name');
+  });
+  const [userName, setUserName] = useState<string>(() => {
+    return Cookies.get('user_name') || 'Thiago Ventura';
+  });
+  const [userEmail, setUserEmail] = useState<string>(() => {
+    return Cookies.get('user_email') || 'thiago@recifedigital.pe.gov.br';
+  });
 
   const [accessibility, setAccessibility] = useState<AccessibilitySettings>(() => {
     const savedContrast = Cookies.get('acc_high_contrast') === 'true';
@@ -116,12 +127,32 @@ export const App: React.FC = () => {
       grade: Number((gradePercent / 10).toFixed(1)),
       competencies: [selectedCourse.category, 'Produtividade Digital', 'Recife Digital'],
       verificationCode: `RDFE-2026-${Math.floor(1000 + Math.random() * 9000)}X`,
-      studentName: userName
+      studentName: userName || 'Thiago Ventura'
     };
 
     setCertificates(prev => [newCert, ...prev]);
     setIsExamOpen(false);
     setCurrentTab('certificates');
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (e) {
+      // Ignore network errors on serverless fallback
+    }
+    Cookies.remove('auth_token');
+    Cookies.remove('user_name');
+    Cookies.remove('user_email');
+    setIsLoggedIn(false);
+    setUserName('');
+    setUserEmail('');
+  };
+
+  const handleLoginSuccess = (name: string, email: string) => {
+    setUserName(name);
+    setUserEmail(email);
+    setIsLoggedIn(true);
   };
 
   return (
@@ -134,8 +165,14 @@ export const App: React.FC = () => {
           setAccessibility={setAccessibility}
           onOpenSearch={() => setIsSearchModalOpen(true)}
           onOpenPWAInstall={() => setIsPWAModalOpen(true)}
-          onOpenAuth={() => setIsAuthModalOpen(true)}
+          onOpenAuth={mode => {
+            setAuthMode(mode);
+            setIsAuthModalOpen(true);
+          }}
+          isLoggedIn={isLoggedIn}
           userName={userName}
+          userEmail={userEmail}
+          onLogout={handleLogout}
         />
 
         <main className="max-w-7xl" style={{ marginTop: '1.5rem', marginBottom: '2rem' }}>
@@ -196,8 +233,9 @@ export const App: React.FC = () => {
 
       <AuthModal
         isOpen={isAuthModalOpen}
+        initialMode={authMode}
         onClose={() => setIsAuthModalOpen(false)}
-        onLoginSuccess={name => setUserName(name)}
+        onLoginSuccess={handleLoginSuccess}
       />
 
       <InfoModal

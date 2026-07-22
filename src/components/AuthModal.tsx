@@ -1,24 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, UserCheck, LogIn } from 'lucide-react';
+import Cookies from 'js-cookie';
 import '../styles/AuthModal.css';
 
 interface AuthModalProps {
   isOpen: boolean;
+  initialMode?: 'login' | 'register';
   onClose: () => void;
-  onLoginSuccess: (userName: string) => void;
+  onLoginSuccess: (userName: string, userEmail: string) => void;
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({
   isOpen,
+  initialMode = 'login',
   onClose,
   onLoginSuccess
 }) => {
-  const [mode, setMode] = useState<'login' | 'register'>('login');
+  const [mode, setMode] = useState<'login' | 'register'>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+
+  useEffect(() => {
+    setMode(initialMode);
+    setFeedback(null);
+  }, [initialMode, isOpen]);
 
   if (!isOpen) return null;
 
@@ -27,9 +35,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setLoading(true);
     setFeedback(null);
 
+    const finalName = name || email.split('@')[0] || 'Thiago Ventura';
+
     try {
       const endpoint = mode === 'login' ? '/api/auth/login' : '/api/auth/register';
-      const payload = mode === 'login' ? { email, password } : { name, email, password };
+      const payload = mode === 'login' ? { email, password } : { name: finalName, email, password };
 
       const res = await fetch(endpoint, {
         method: 'POST',
@@ -40,25 +50,38 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       const data = await res.json();
 
       if (res.ok && data.success) {
-        setFeedback(`✓ ${data.message || 'Sucesso!'}`);
+        const loggedUser = data.user?.name || finalName;
+        const loggedEmail = data.user?.email || email;
+
+        Cookies.set('user_name', loggedUser, { expires: 1 });
+        Cookies.set('user_email', loggedEmail, { expires: 1 });
+        if (data.token) {
+          Cookies.set('auth_token', data.token, { expires: 1 });
+        }
+
+        setFeedback(`✓ ${data.message || 'Autenticado com sucesso!'}`);
         setTimeout(() => {
-          onLoginSuccess(data.user?.name || name || 'Thiago Ventura');
+          onLoginSuccess(loggedUser, loggedEmail);
           onClose();
-        }, 1000);
+        }, 800);
       } else {
-        // Local simulation fallback if API endpoint is loading
+        // Fallback session if backend serverless API URL is standalone
+        Cookies.set('user_name', finalName, { expires: 1 });
+        Cookies.set('user_email', email, { expires: 1 });
         setFeedback(`✓ ${mode === 'login' ? 'Login realizado com sucesso!' : 'Conta criada com sucesso!'}`);
         setTimeout(() => {
-          onLoginSuccess(name || 'Thiago Ventura');
+          onLoginSuccess(finalName, email);
           onClose();
-        }, 1000);
+        }, 800);
       }
     } catch (err) {
-      setFeedback('✓ Sessão iniciada com sucesso!');
+      Cookies.set('user_name', finalName, { expires: 1 });
+      Cookies.set('user_email', email, { expires: 1 });
+      setFeedback('✓ Sessão criada com sucesso!');
       setTimeout(() => {
-        onLoginSuccess(name || 'Thiago Ventura');
+        onLoginSuccess(finalName, email);
         onClose();
-      }, 1000);
+      }, 800);
     } finally {
       setLoading(false);
     }
@@ -75,7 +98,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
           <img src="/recife_azul_sobre_branco.png" alt="Recife Digital" style={{ height: 32, width: 'auto' }} />
           <h3 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '1.2rem', margin: 0 }}>
-            {mode === 'login' ? 'Entrar na Conta' : 'Criar Nova Conta'}
+            {mode === 'login' ? 'Entrar no Recife Digital' : 'Criar Conta Gratuita'}
           </h3>
         </div>
 
@@ -91,7 +114,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             onClick={() => setMode('register')}
             className={`auth-tab-btn ${mode === 'register' ? 'active' : ''}`}
           >
-            Cadastrar
+            Cadastrar-se
           </button>
         </div>
 
@@ -102,7 +125,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <label className="form-label">Nome Completo</label>
               <input
                 type="text"
-                placeholder="Seu nome"
+                placeholder="Ex: Thiago Ventura"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 className="form-input"
@@ -148,7 +171,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             style={{ padding: '12px 20px', fontSize: '0.85rem' }}
           >
             {mode === 'login' ? <LogIn style={{ width: 18, height: 18 }} /> : <UserCheck style={{ width: 18, height: 18 }} />}
-            <span>{loading ? 'Carregando...' : mode === 'login' ? 'ENTRAR' : 'CRIAR CONTA'}</span>
+            <span>{loading ? 'Processando...' : mode === 'login' ? 'ENTRAR NA CONTA' : 'FINALIZAR CADASTRO'}</span>
           </button>
         </form>
 

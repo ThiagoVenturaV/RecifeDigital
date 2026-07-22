@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Eye, Volume2, VolumeX, Smartphone, Bell, CheckCheck } from 'lucide-react';
+import { Search, Eye, Volume2, VolumeX, Smartphone, Bell, CheckCheck, LogOut, Award, TrendingUp } from 'lucide-react';
 import type { AccessibilitySettings } from '../types';
 import { tts } from '../utils/ttsEngine';
 import '../styles/Header.css';
@@ -11,8 +11,11 @@ interface HeaderProps {
   setAccessibility: React.Dispatch<React.SetStateAction<AccessibilitySettings>>;
   onOpenSearch: () => void;
   onOpenPWAInstall: () => void;
-  onOpenAuth: () => void;
-  userName?: string;
+  onOpenAuth: (initialMode: 'login' | 'register') => void;
+  isLoggedIn: boolean;
+  userName: string;
+  userEmail: string;
+  onLogout: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -23,10 +26,14 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSearch,
   onOpenPWAInstall,
   onOpenAuth,
-  userName = 'Thiago Ventura'
+  isLoggedIn,
+  userName,
+  userEmail,
+  onLogout
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showAccessibilityMenu, setShowAccessibilityMenu] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [unreadCount, setUnreadCount] = useState(2);
 
   const notifications = [
@@ -61,7 +68,7 @@ export const Header: React.FC<HeaderProps> = ({
           
           <div className="partner-logos">
             <a
-              href="https://www me.recife.pe.gov.br"
+              href="https://www.recife.pe.gov.br"
               target="_blank"
               rel="noopener noreferrer"
               title="Portal da Prefeitura do Recife"
@@ -156,7 +163,6 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => setShowNotifications(!showNotifications)}
               className="icon-btn"
               title="Notificações"
-              style={{ position: 'relative' }}
             >
               <Bell style={{ width: 20, height: 20 }} />
               {unreadCount > 0 && (
@@ -177,7 +183,7 @@ export const Header: React.FC<HeaderProps> = ({
             {showNotifications && (
               <div className="accessibility-dropdown" style={{ width: 280 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                  <h4 className="dropdown-title" style={{ margin: 0 }}>Notificações</h4>
+                  <h4 style={{ fontWeight: 800, fontSize: '0.85rem', margin: 0 }}>Notificações</h4>
                   {unreadCount > 0 && (
                     <button
                       onClick={handleMarkAllRead}
@@ -217,7 +223,7 @@ export const Header: React.FC<HeaderProps> = ({
 
             {showAccessibilityMenu && (
               <div className="accessibility-dropdown">
-                <h4 className="dropdown-title">
+                <h4 style={{ fontWeight: 800, fontSize: '0.85rem', marginBottom: 12 }}>
                   Acessibilidade
                 </h4>
                 
@@ -264,18 +270,89 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
 
-          {/* User Profile Avatar / Login */}
-          <button
-            onClick={onOpenAuth}
-            style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-            title={`Perfil de ${userName}`}
-          >
-            <img
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"
-              alt={userName}
-              className="avatar-img"
-            />
-          </button>
+          {/* User Auth Buttons (Logged Out) or Profile Menu (Logged In) */}
+          {isLoggedIn ? (
+            <div className="user-profile-wrapper">
+              <button
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                className="avatar-btn"
+                title={`Perfil de ${userName}`}
+              >
+                <img
+                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"
+                  alt={userName}
+                  className="avatar-img"
+                />
+                <span className="avatar-name">{userName.split(' ')[0]}</span>
+              </button>
+
+              {showProfileMenu && (
+                <div className="profile-menu-dropdown">
+                  <div className="profile-info-box">
+                    <img
+                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80"
+                      alt={userName}
+                      style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }}
+                    />
+                    <div>
+                      <strong style={{ fontSize: '0.85rem', display: 'block', color: '#0f172a' }}>{userName}</strong>
+                      <span style={{ fontSize: '0.7rem', color: '#64748B' }}>{userEmail || 'aluno@recifedigital.pe.gov.br'}</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setCurrentTab('progress');
+                      setShowProfileMenu(false);
+                    }}
+                    className="profile-menu-item"
+                  >
+                    <TrendingUp style={{ width: 16, height: 16, color: '#F95700' }} />
+                    <span>Meu Progresso</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setCurrentTab('certificates');
+                      setShowProfileMenu(false);
+                    }}
+                    className="profile-menu-item"
+                  >
+                    <Award style={{ width: 16, height: 16, color: '#00529C' }} />
+                    <span>Meus Certificados</span>
+                  </button>
+
+                  <div style={{ paddingTop: 8, borderTop: '1px solid #F1F5F9' }}>
+                    <button
+                      onClick={() => {
+                        setShowProfileMenu(false);
+                        onLogout();
+                      }}
+                      className="btn-logout"
+                    >
+                      <LogOut style={{ width: 16, height: 16 }} />
+                      <span>SAIR DA CONTA</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="auth-header-group">
+              <button
+                onClick={() => onOpenAuth('login')}
+                className="btn-header-login"
+              >
+                Entrar
+              </button>
+              <button
+                onClick={() => onOpenAuth('register')}
+                className="btn-header-register"
+              >
+                Cadastrar-se
+              </button>
+            </div>
+          )}
 
         </div>
 
