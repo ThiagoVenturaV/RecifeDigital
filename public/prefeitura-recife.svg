@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" fill="none">
+  <rect width="200" height="60" rx="8" fill="#00529C"/>
+  <path d="M25 15H45V45H25V15Z" fill="#FFFFFF" opacity="0.2"/>
+  <text x="55" y="30" font-family="sans-serif" font-weight="bold" font-size="14" fill="#FFFFFF">PREFEITURA DO</text>
+  <text x="55" y="46" font-family="sans-serif" font-weight="900" font-size="18" fill="#FFC72C">RECIFE</text>
+</svg>
