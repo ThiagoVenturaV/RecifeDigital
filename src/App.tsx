@@ -5,6 +5,9 @@ import { BottomNavBar } from './components/BottomNavBar';
 import { LibrasWidget } from './components/LibrasWidget';
 import { QuizModal } from './components/QuizModal';
 import { PWAInstallModal } from './components/PWAInstallModal';
+import { SearchModal } from './components/SearchModal';
+import { AuthModal } from './components/AuthModal';
+import { InfoModal } from './components/InfoModal';
 import { CatalogView } from './views/CatalogView';
 import { PlayerView } from './views/PlayerView';
 import { CertificatesView } from './views/CertificatesView';
@@ -19,8 +22,14 @@ export const App: React.FC = () => {
   const [certificates, setCertificates] = useState<Certificate[]>(INITIAL_CERTIFICATES);
   const [selectedCourse, setSelectedCourse] = useState<Course>(INITIAL_COURSES[0]);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Modals
   const [isExamOpen, setIsExamOpen] = useState(false);
   const [isPWAModalOpen, setIsPWAModalOpen] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [infoModalType, setInfoModalType] = useState<'privacy' | 'terms' | 'support' | 'about' | null>(null);
+  const [userName, setUserName] = useState<string>('Thiago Ventura');
 
   const [accessibility, setAccessibility] = useState<AccessibilitySettings>(() => {
     const savedContrast = Cookies.get('acc_high_contrast') === 'true';
@@ -107,7 +116,7 @@ export const App: React.FC = () => {
       grade: Number((gradePercent / 10).toFixed(1)),
       competencies: [selectedCourse.category, 'Produtividade Digital', 'Recife Digital'],
       verificationCode: `RDFE-2026-${Math.floor(1000 + Math.random() * 9000)}X`,
-      studentName: 'Thiago Ventura'
+      studentName: userName
     };
 
     setCertificates(prev => [newCert, ...prev]);
@@ -116,24 +125,27 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF6F0] text-slate-900 font-sans app-container flex flex-col justify-between">
+    <div className="app-container">
       <div>
         <Header
           currentTab={currentTab}
           setCurrentTab={setCurrentTab}
           accessibility={accessibility}
           setAccessibility={setAccessibility}
-          onOpenSearch={() => setCurrentTab('catalog')}
+          onOpenSearch={() => setIsSearchModalOpen(true)}
           onOpenPWAInstall={() => setIsPWAModalOpen(true)}
+          onOpenAuth={() => setIsAuthModalOpen(true)}
+          userName={userName}
         />
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <main className="max-w-7xl" style={{ marginTop: '1.5rem', marginBottom: '2rem' }}>
           {currentTab === 'catalog' && (
             <CatalogView
               courses={courses}
               onSelectCourse={handleSelectCourse}
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
+              onOpenInfo={type => setInfoModalType(type)}
             />
           )}
 
@@ -160,6 +172,7 @@ export const App: React.FC = () => {
         </main>
       </div>
 
+      {/* Interactive Modals */}
       {isExamOpen && (
         <QuizModal
           course={selectedCourse}
@@ -172,6 +185,25 @@ export const App: React.FC = () => {
       <PWAInstallModal
         isOpen={isPWAModalOpen}
         onClose={() => setIsPWAModalOpen(false)}
+      />
+
+      <SearchModal
+        isOpen={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+        courses={courses}
+        onSelectCourse={handleSelectCourse}
+      />
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onLoginSuccess={name => setUserName(name)}
+      />
+
+      <InfoModal
+        isOpen={infoModalType !== null}
+        type={infoModalType}
+        onClose={() => setInfoModalType(null)}
       />
 
       <BottomNavBar currentTab={currentTab} setCurrentTab={setCurrentTab} />

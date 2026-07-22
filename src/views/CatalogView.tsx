@@ -8,13 +8,15 @@ interface CatalogViewProps {
   onSelectCourse: (course: Course) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  onOpenInfo: (type: 'privacy' | 'terms' | 'support' | 'about') => void;
 }
 
 export const CatalogView: React.FC<CatalogViewProps> = ({
   courses,
   onSelectCourse,
   searchQuery,
-  setSearchQuery
+  setSearchQuery,
+  onOpenInfo
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('Todos');
 
@@ -133,9 +135,29 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
       {/* Footer Section */}
       <footer style={{ marginTop: '3rem', paddingTop: '1.5rem', borderTop: '1px solid #E2E8F0', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, fontSize: '0.75rem', color: '#64748B' }}>
         <div className="partner-logos" style={{ paddingLeft: 0, borderLeft: 'none' }}>
-          <img src="/recife_azul_sobre_branco.png" alt="Prefeitura do Recife" className="partner-logo-img" />
-          <img src="/logoSchool.svg" alt="CESAR School" className="partner-logo-img" />
+          <a href="https://www.recife.pe.gov.br" target="_blank" rel="noreferrer">
+            <img src="/recife_azul_sobre_branco.png" alt="Prefeitura do Recife" className="partner-logo-img" />
+          </a>
+          <a href="https://www.cesar.school" target="_blank" rel="noreferrer">
+            <img src="/logoSchool.svg" alt="CESAR School" className="partner-logo-img" />
+          </a>
         </div>
+
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+          <button onClick={() => onOpenInfo('privacy')} style={{ background: 'none', border: 'none', color: '#00529C', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}>
+            Privacidade
+          </button>
+          <button onClick={() => onOpenInfo('terms')} style={{ background: 'none', border: 'none', color: '#00529C', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}>
+            Termos de Uso
+          </button>
+          <button onClick={() => onOpenInfo('support')} style={{ background: 'none', border: 'none', color: '#00529C', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}>
+            Suporte
+          </button>
+          <button onClick={() => onOpenInfo('about')} style={{ background: 'none', border: 'none', color: '#00529C', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}>
+            Sobre
+          </button>
+        </div>
+
         <p>© 2026 Prefeitura do Recife & CESAR School. Todos os direitos reservados.</p>
       </footer>
 

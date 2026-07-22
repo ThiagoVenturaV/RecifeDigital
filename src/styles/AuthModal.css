@@ -1,0 +1,48 @@
+/* AuthModal Component Styles */
+.auth-tab-group {
+  display: flex;
+  border-bottom: 2px solid #E2E8F0;
+  margin-bottom: 20px;
+}
+
+.auth-tab-btn {
+  flex: 1;
+  padding: 10px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: #64748B;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+}
+
+.auth-tab-btn.active {
+  color: var(--primary, #F95700);
+  border-bottom-color: var(--primary, #F95700);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.form-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  outline: none;
+}
+.form-input:focus {
+  border-color: var(--primary, #F95700);
+}
