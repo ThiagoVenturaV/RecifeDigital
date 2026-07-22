@@ -56,7 +56,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       }
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Ocorreu uma falha ao processar sua solicitação.');
+        throw new Error(data.error || data.details || `Erro ${res.status}: Não foi possível concluir a operação.`);
       }
 
       // Successful Registration or Login

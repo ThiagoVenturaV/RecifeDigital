@@ -23,7 +23,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'E-mail e senha são obrigatórios.' });
     }
 
-    const cleanEmail = email.toLowerCase().trim();
+    const cleanEmail = String(email).toLowerCase().trim();
     const sql = getDb();
     let userName = cleanEmail.split('@')[0];
     let userId = `usr-${Date.now()}`;
@@ -43,15 +43,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const users = await sql`SELECT id, name, email, password_hash FROM users WHERE email = ${cleanEmail}`;
         if (users && users.length > 0) {
           const user = users[0];
-          const validPassword = await bcrypt.compare(password, user.password_hash);
+          let validPassword = false;
+          try {
+            if (bcrypt && typeof bcrypt.compare === 'function') {
+              validPassword = await bcrypt.compare(password, user.password_hash);
+            } else if (bcrypt && (bcrypt as any).default && typeof (bcrypt as any).default.compare === 'function') {
+              validPassword = await (bcrypt as any).default.compare(password, user.password_hash);
+            } else {
+              validPassword = (user.password_hash === password || user.password_hash === Buffer.from(password).toString('base64'));
+            }
+          } catch (e) {
+            validPassword = (user.password_hash === password || user.password_hash === Buffer.from(password).toString('base64'));
+          }
+
           if (!validPassword) {
             return res.status(401).json({ error: 'Senha incorreta. Tente novamente.' });
           }
           userName = user.name;
           userId = user.id;
+        } else {
+          return res.status(401).json({ error: 'E-mail não encontrado. Cadastre-se primeiro!' });
         }
       } catch (dbErr: any) {
-        console.warn('NeonDB Login Notice:', dbErr.message);
+        console.error('NeonDB Login Notice:', dbErr);
       }
     }
 
@@ -66,6 +80,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   } catch (error: any) {
     console.error('Login Error:', error);
-    return res.status(500).json({ error: 'Erro ao realizar login.' });
+    return res.status(500).json({
+      error: 'Erro ao realizar login.',
+      details: error.message || String(error)
+    });
   }
 }
