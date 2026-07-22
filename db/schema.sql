@@ -1,4 +1,4 @@
--- Schema DDL for Recife Digital on NeonDB (PostgreSQL)
+-- Recife Digital - Full NeonDB (PostgreSQL) Schema DDL
 
 CREATE TABLE IF NOT EXISTS users (
   id VARCHAR(100) PRIMARY KEY,
@@ -16,22 +16,25 @@ CREATE TABLE IF NOT EXISTS courses (
   description TEXT NOT NULL,
   workload_hours INT NOT NULL,
   thumbnail TEXT NOT NULL,
+  course_data JSONB NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS user_progress (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  course_id VARCHAR(100) REFERENCES courses(id) ON DELETE CASCADE,
+  id VARCHAR(100) PRIMARY KEY,
+  user_id VARCHAR(100) NOT NULL,
+  course_id VARCHAR(100) NOT NULL,
   progress_percent INT DEFAULT 0,
+  completed_lessons JSONB DEFAULT '[]'::jsonb,
   is_enrolled BOOLEAN DEFAULT TRUE,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id, course_id)
 );
 
 CREATE TABLE IF NOT EXISTS certificates (
   id VARCHAR(100) PRIMARY KEY,
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  course_id VARCHAR(100) REFERENCES courses(id) ON DELETE CASCADE,
+  user_id VARCHAR(100) NOT NULL,
+  course_id VARCHAR(100) NOT NULL,
   course_title VARCHAR(255) NOT NULL,
   student_name VARCHAR(255) NOT NULL,
   issue_date VARCHAR(100) NOT NULL,

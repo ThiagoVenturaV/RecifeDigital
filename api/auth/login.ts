@@ -1,59 +1,50 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import bcrypt from 'bcryptjs';
-import { getDb } from '../db';
-import { signAuthToken, createAuthCookie } from './jwt';
+import { getDb } from '../db.js';
+import { signToken, setAuthCookie } from './jwt.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ success: false, message: 'Method Not Allowed' });
-  }
-
-  const { email, password } = req.body || {};
-
-  if (!email || !password) {
-    return res.status(400).json({ success: false, message: 'Email e senha são obrigatórios' });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const sql = getDb();
-    let user = null;
+    const { email, password } = req.body || {};
 
-    if (sql) {
-      const results = await sql`SELECT * FROM users WHERE email = ${email.toLowerCase()};`;
-      if (results.length === 0) {
-        return res.status(401).json({ success: false, message: 'Credenciais inválidas' });
-      }
-      user = results[0];
-      const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-      if (!isPasswordValid) {
-        return res.status(401).json({ success: false, message: 'Credenciais inválidas' });
-      }
-    } else {
-      // Mock Fallback User for local dev testing
-      const mockPasswordHash = await bcrypt.hash('123456', 10);
-      const isPasswordValid = await bcrypt.compare(password, mockPasswordHash);
-      if (!isPasswordValid) {
-        return res.status(401).json({ success: false, message: 'Credenciais inválidas' });
-      }
-      user = {
-        id: 'user-mock-1',
-        name: 'Thiago Ventura',
-        email: email.toLowerCase()
-      };
+    if (!email || !password) {
+      return res.status(400).json({ error: 'E-mail e senha são obrigatórios.' });
     }
 
-    const tokenPayload = { userId: user.id, email: user.email, name: user.name };
-    const token = signAuthToken(tokenPayload);
-    const cookieHeader = createAuthCookie(token);
+    const sql = getDb();
+    let dbUser = { id: `usr-${Date.now()}`, name: email.split('@')[0], email };
 
-    res.setHeader('Set-Cookie', cookieHeader);
+    if (sql) {
+      const users = await sql`SELECT id, name, email, password_hash FROM users WHERE email = ${email.toLowerCase().trim()}`;
+      if (!users || users.length === 0) {
+        return res.status(401).json({ error: 'Credenciais inválidas. Usuário não encontrado.' });
+      }
+
+      const user = users[0];
+      const validPassword = await bcrypt.compare(password, user.password_hash);
+      if (!validPassword) {
+        return res.status(401).json({ error: 'Credenciais inválidas. Senha incorreta.' });
+      }
+
+      dbUser = { id: user.id, name: user.name, email: user.email };
+    }
+
+    // Sign JWT token & set HTTP-only Cookie (expires in 24 hours)
+    const token = signToken({ userId: dbUser.id, email: dbUser.email, name: dbUser.name });
+    setAuthCookie(res, token);
+
     return res.status(200).json({
       success: true,
-      message: 'Login realizado com sucesso',
-      user: { id: user.id, name: user.name, email: user.email },
+      message: 'Login realizado com sucesso!',
+      user: { id: dbUser.id, name: dbUser.name, email: dbUser.email },
       token
     });
   } catch (error: any) {
-    return res.status(500).json({ success: false, error: error.message });
+    console.error('Login Error:', error);
+    return res.status(500).json({ error: 'Erro interno ao realizar login.' });
   }
 }

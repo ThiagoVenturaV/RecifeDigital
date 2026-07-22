@@ -1,53 +1,52 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import bcrypt from 'bcryptjs';
-import { getDb } from '../db';
-import { signAuthToken, createAuthCookie } from './jwt';
+import { getDb } from '../db.js';
+import { signToken, setAuthCookie } from './jwt.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ success: false, message: 'Method Not Allowed' });
-  }
-
-  const { name, email, password } = req.body || {};
-
-  if (!email || !password || !name) {
-    return res.status(400).json({ success: false, message: 'Nome, email e senha são obrigatórios' });
-  }
-
-  if (password.length < 6) {
-    return res.status(400).json({ success: false, message: 'A senha deve conter no mínimo 6 caracteres' });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const passwordHash = await bcrypt.hash(password, 10);
-    const userId = `user-${Date.now()}`;
+    const { name, email, password } = req.body || {};
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'Nome, e-mail e senha são obrigatórios.' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const userId = `usr-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
     const sql = getDb();
+    let dbUser = { id: userId, name, email };
 
     if (sql) {
-      // Check existing
-      const existing = await sql`SELECT id FROM users WHERE email = ${email.toLowerCase()};`;
-      if (existing.length > 0) {
-        return res.status(409).json({ success: false, message: 'Este e-mail já está cadastrado' });
+      // Check if user exists
+      const existing = await sql`SELECT id FROM users WHERE email = ${email.toLowerCase().trim()}`;
+      if (existing && existing.length > 0) {
+        return res.status(400).json({ error: 'Este e-mail já está cadastrado.' });
       }
 
+      // Insert into NeonDB
       await sql`
         INSERT INTO users (id, name, email, password_hash)
-        VALUES (${userId}, ${name}, ${email.toLowerCase()}, ${passwordHash});
+        VALUES (${userId}, ${name}, ${email.toLowerCase().trim()}, ${hashedPassword})
       `;
     }
 
-    const tokenPayload = { userId, email: email.toLowerCase(), name };
-    const token = signAuthToken(tokenPayload);
-    const cookieHeader = createAuthCookie(token);
+    // Sign JWT token & set HTTP-only Cookie
+    const token = signToken({ userId: dbUser.id, email: dbUser.email, name: dbUser.name });
+    setAuthCookie(res, token);
 
-    res.setHeader('Set-Cookie', cookieHeader);
-    return res.status(201).json({
+    return res.status(200).json({
       success: true,
-      message: 'Usuário registrado com sucesso',
-      user: { id: userId, name, email: email.toLowerCase() },
+      message: 'Usuário cadastrado com sucesso!',
+      user: { id: dbUser.id, name: dbUser.name, email: dbUser.email },
       token
     });
   } catch (error: any) {
-    return res.status(500).json({ success: false, error: error.message });
+    console.error('Registration Error:', error);
+    return res.status(500).json({ error: 'Erro interno ao realizar cadastro.' });
   }
 }
