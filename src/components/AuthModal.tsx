@@ -53,13 +53,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
       if (contentType && contentType.includes('application/json')) {
         data = await res.json();
-      } else {
-        const text = await res.text();
-        throw new Error(`Resposta inválida do servidor: ${text.substring(0, 100)}`);
       }
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error || data.details || 'Falha ao autenticar no banco de dados.');
+        throw new Error(data.error || 'Ocorreu uma falha ao processar sua solicitação.');
       }
 
       // Successful Registration or Login
@@ -76,14 +73,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       localStorage.setItem('user_name', loggedUser);
       localStorage.setItem('user_email', loggedEmail);
 
-      setSuccessMessage(`✓ ${data.message || 'Autenticado com sucesso!'}`);
+      setSuccessMessage(`✓ ${data.message || 'Sucesso!'}`);
       setTimeout(() => {
         onLoginSuccess(loggedUser, loggedEmail);
         onClose();
-      }, 1000);
+      }, 600);
     } catch (err: any) {
       console.error('Auth Error:', err);
-      setErrorMessage(err.message || 'Ocorreu um erro ao conectar-se ao servidor.');
+      setErrorMessage(err.message || 'Erro ao realizar a operação. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -100,7 +97,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
           <img src="/recife_azul_sobre_branco.png" alt="Recife Digital" style={{ height: 32, width: 'auto' }} />
           <h3 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '1.2rem', margin: 0 }}>
-            {mode === 'login' ? 'Entrar no Recife Digital' : 'Criar Conta no NeonDB'}
+            {mode === 'login' ? 'Entrar no Recife Digital' : 'Criar Nova Conta'}
           </h3>
         </div>
 
@@ -186,7 +183,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             style={{ padding: '12px 20px', fontSize: '0.85rem' }}
           >
             {mode === 'login' ? <LogIn style={{ width: 18, height: 18 }} /> : <UserCheck style={{ width: 18, height: 18 }} />}
-            <span>{loading ? 'Salvando no NeonDB...' : mode === 'login' ? 'ENTRAR NA CONTA' : 'CRIAR MINHA CONTA'}</span>
+            <span>{loading ? 'Salvando...' : mode === 'login' ? 'ENTRAR NA CONTA' : 'CRIAR MINHA CONTA'}</span>
           </button>
         </form>
 
