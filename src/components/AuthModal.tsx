@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, UserCheck, LogIn } from 'lucide-react';
+import { X, UserCheck, LogIn, AlertCircle } from 'lucide-react';
 import Cookies from 'js-cookie';
 import '../styles/AuthModal.css';
 
@@ -21,11 +21,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
-  const [feedback, setFeedback] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setMode(initialMode);
-    setFeedback(null);
+    setErrorMessage(null);
+    setSuccessMessage(null);
   }, [initialMode, isOpen]);
 
   if (!isOpen) return null;
@@ -33,13 +35,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setFeedback(null);
-
-    const finalName = name || email.split('@')[0] || 'Thiago Ventura';
+    setErrorMessage(null);
+    setSuccessMessage(null);
 
     try {
       const endpoint = mode === 'login' ? '/api/auth/login' : '/api/auth/register';
-      const payload = mode === 'login' ? { email, password } : { name: finalName, email, password };
+      const payload = mode === 'login' ? { email, password } : { name, email, password };
 
       const res = await fetch(endpoint, {
         method: 'POST',
@@ -47,41 +48,42 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         body: JSON.stringify(payload)
       });
 
-      const data = await res.json();
+      const contentType = res.headers.get('content-type');
+      let data: any = {};
 
-      if (res.ok && data.success) {
-        const loggedUser = data.user?.name || finalName;
-        const loggedEmail = data.user?.email || email;
-
-        Cookies.set('user_name', loggedUser, { expires: 1 });
-        Cookies.set('user_email', loggedEmail, { expires: 1 });
-        if (data.token) {
-          Cookies.set('auth_token', data.token, { expires: 1 });
-        }
-
-        setFeedback(`✓ ${data.message || 'Autenticado com sucesso!'}`);
-        setTimeout(() => {
-          onLoginSuccess(loggedUser, loggedEmail);
-          onClose();
-        }, 800);
+      if (contentType && contentType.includes('application/json')) {
+        data = await res.json();
       } else {
-        // Fallback session if backend serverless API URL is standalone
-        Cookies.set('user_name', finalName, { expires: 1 });
-        Cookies.set('user_email', email, { expires: 1 });
-        setFeedback(`✓ ${mode === 'login' ? 'Login realizado com sucesso!' : 'Conta criada com sucesso!'}`);
-        setTimeout(() => {
-          onLoginSuccess(finalName, email);
-          onClose();
-        }, 800);
+        const text = await res.text();
+        throw new Error(`Resposta inválida do servidor: ${text.substring(0, 100)}`);
       }
-    } catch (err) {
-      Cookies.set('user_name', finalName, { expires: 1 });
-      Cookies.set('user_email', email, { expires: 1 });
-      setFeedback('✓ Sessão criada com sucesso!');
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || data.details || 'Falha ao autenticar no banco de dados.');
+      }
+
+      // Successful Registration or Login
+      const loggedUser = data.user?.name || name || email.split('@')[0];
+      const loggedEmail = data.user?.email || email;
+
+      // Save token and info in Cookies & LocalStorage
+      Cookies.set('user_name', loggedUser, { expires: 7 });
+      Cookies.set('user_email', loggedEmail, { expires: 7 });
+      if (data.token) {
+        Cookies.set('auth_token', data.token, { expires: 7 });
+        localStorage.setItem('auth_token', data.token);
+      }
+      localStorage.setItem('user_name', loggedUser);
+      localStorage.setItem('user_email', loggedEmail);
+
+      setSuccessMessage(`✓ ${data.message || 'Autenticado com sucesso!'}`);
       setTimeout(() => {
-        onLoginSuccess(finalName, email);
+        onLoginSuccess(loggedUser, loggedEmail);
         onClose();
-      }, 800);
+      }, 1000);
+    } catch (err: any) {
+      console.error('Auth Error:', err);
+      setErrorMessage(err.message || 'Ocorreu um erro ao conectar-se ao servidor.');
     } finally {
       setLoading(false);
     }
@@ -98,20 +100,26 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
           <img src="/recife_azul_sobre_branco.png" alt="Recife Digital" style={{ height: 32, width: 'auto' }} />
           <h3 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '1.2rem', margin: 0 }}>
-            {mode === 'login' ? 'Entrar no Recife Digital' : 'Criar Conta Gratuita'}
+            {mode === 'login' ? 'Entrar no Recife Digital' : 'Criar Conta no NeonDB'}
           </h3>
         </div>
 
         {/* Tab switch */}
         <div className="auth-tab-group">
           <button
-            onClick={() => setMode('login')}
+            onClick={() => {
+              setMode('login');
+              setErrorMessage(null);
+            }}
             className={`auth-tab-btn ${mode === 'login' ? 'active' : ''}`}
           >
             Entrar
           </button>
           <button
-            onClick={() => setMode('register')}
+            onClick={() => {
+              setMode('register');
+              setErrorMessage(null);
+            }}
             className={`auth-tab-btn ${mode === 'register' ? 'active' : ''}`}
           >
             Cadastrar-se
@@ -158,9 +166,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             />
           </div>
 
-          {feedback && (
-            <div style={{ padding: 10, borderRadius: 10, background: '#D1FAE5', color: '#065F46', fontSize: '0.75rem', fontWeight: 700, marginBottom: 12 }}>
-              {feedback}
+          {errorMessage && (
+            <div style={{ padding: 12, borderRadius: 12, background: '#FFE4E6', border: '1px solid #FECDD3', color: '#9F1239', fontSize: '0.75rem', fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+              <AlertCircle style={{ width: 16, height: 16, flexShrink: 0, marginTop: 2 }} />
+              <span>{errorMessage}</span>
+            </div>
+          )}
+
+          {successMessage && (
+            <div style={{ padding: 12, borderRadius: 12, background: '#D1FAE5', border: '1px solid #A7F3D0', color: '#065F46', fontSize: '0.75rem', fontWeight: 700, marginBottom: 16 }}>
+              {successMessage}
             </div>
           )}
 
@@ -171,7 +186,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             style={{ padding: '12px 20px', fontSize: '0.85rem' }}
           >
             {mode === 'login' ? <LogIn style={{ width: 18, height: 18 }} /> : <UserCheck style={{ width: 18, height: 18 }} />}
-            <span>{loading ? 'Processando...' : mode === 'login' ? 'ENTRAR NA CONTA' : 'FINALIZAR CADASTRO'}</span>
+            <span>{loading ? 'Salvando no NeonDB...' : mode === 'login' ? 'ENTRAR NA CONTA' : 'CRIAR MINHA CONTA'}</span>
           </button>
         </form>
 
