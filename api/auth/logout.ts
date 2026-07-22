@@ -1,5 +1,13 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { serialize } from 'cookie';
+
+function makeCookie(name: string, value: string, maxAge: number): string {
+  const parts = [`${name}=${encodeURIComponent(value)}`];
+  parts.push(`Path=/`);
+  parts.push(`Max-Age=${maxAge}`);
+  parts.push(`SameSite=Lax`);
+  parts.push(`Secure`);
+  return parts.join('; ');
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -10,15 +18,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Método não permitido.' });
 
-  const cookie = serialize('auth_token', '', {
-    httpOnly: false,
-    secure: true,
-    sameSite: 'lax',
-    maxAge: 0,
-    expires: new Date(0),
-    path: '/'
-  });
-  res.setHeader('Set-Cookie', cookie);
+  res.setHeader('Set-Cookie', makeCookie('auth_token', '', 0));
 
   return res.status(200).json({
     success: true,

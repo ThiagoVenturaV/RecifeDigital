@@ -2,7 +2,6 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { neon } from '@neondatabase/serverless';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { serialize } from 'cookie';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'recife-digital-super-secret-key-2026';
 
@@ -22,8 +21,16 @@ function signToken(payload: { userId: string; email: string; name: string }): st
   return Buffer.from(JSON.stringify(payload)).toString('base64');
 }
 
+function makeCookie(name: string, value: string, maxAge: number): string {
+  const parts = [`${name}=${encodeURIComponent(value)}`];
+  parts.push(`Path=/`);
+  parts.push(`Max-Age=${maxAge}`);
+  parts.push(`SameSite=Lax`);
+  parts.push(`Secure`);
+  return parts.join('; ');
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -41,13 +48,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'E-mail e senha são obrigatórios.' });
     }
 
-    // Database
     const sql = getDb();
     if (!sql) {
       return res.status(500).json({ error: 'Banco de dados não configurado.' });
     }
 
-    // Ensure table exists
     await sql`
       CREATE TABLE IF NOT EXISTS users (
         id VARCHAR(100) PRIMARY KEY,
@@ -58,7 +63,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       )
     `;
 
-    // Find user
     const users = await sql`SELECT id, name, email, password_hash FROM users WHERE email = ${email}`;
     if (!users || users.length === 0) {
       return res.status(401).json({ error: 'E-mail não encontrado. Cadastre-se primeiro.' });
@@ -66,7 +70,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const user = users[0];
 
-    // Compare password
     const compareFn = (bcrypt as any).compare || (bcrypt as any).default?.compare;
     let valid = false;
     if (typeof compareFn === 'function') {
@@ -79,18 +82,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(401).json({ error: 'Senha incorreta.' });
     }
 
-    // Generate token
     const token = signToken({ userId: user.id, email: user.email, name: user.name });
-
-    // Set cookie
-    const cookie = serialize('auth_token', token, {
-      httpOnly: false,
-      secure: true,
-      sameSite: 'lax',
-      maxAge: 86400,
-      path: '/'
-    });
-    res.setHeader('Set-Cookie', cookie);
+    res.setHeader('Set-Cookie', makeCookie('auth_token', token, 86400));
 
     return res.status(200).json({
       success: true,

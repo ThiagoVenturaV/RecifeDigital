@@ -1,7 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { neon } from '@neondatabase/serverless';
 import jwt from 'jsonwebtoken';
-import { parse } from 'cookie';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'recife-digital-super-secret-key-2026';
 
@@ -23,17 +22,28 @@ function verifyToken(token: string): { userId: string; email: string; name: stri
   }
 }
 
+function parseCookies(cookieHeader: string): Record<string, string> {
+  const cookies: Record<string, string> = {};
+  cookieHeader.split(';').forEach(pair => {
+    const idx = pair.indexOf('=');
+    if (idx > 0) {
+      const key = pair.substring(0, idx).trim();
+      const val = pair.substring(idx + 1).trim();
+      cookies[key] = decodeURIComponent(val);
+    }
+  });
+  return cookies;
+}
+
 function getUserFromRequest(req: VercelRequest) {
-  // Try Authorization header
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const decoded = verifyToken(authHeader.substring(7));
     if (decoded) return decoded;
   }
-  // Try cookie
   const cookieHeader = req.headers.cookie;
   if (cookieHeader) {
-    const cookies = parse(cookieHeader);
+    const cookies = parseCookies(cookieHeader);
     if (cookies.auth_token) {
       const decoded = verifyToken(cookies.auth_token);
       if (decoded) return decoded;

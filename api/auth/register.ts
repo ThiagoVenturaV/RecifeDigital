@@ -2,7 +2,6 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { neon } from '@neondatabase/serverless';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { serialize } from 'cookie';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'recife-digital-super-secret-key-2026';
 
@@ -22,8 +21,16 @@ function signToken(payload: { userId: string; email: string; name: string }): st
   return Buffer.from(JSON.stringify(payload)).toString('base64');
 }
 
+function makeCookie(name: string, value: string, maxAge: number): string {
+  const parts = [`${name}=${encodeURIComponent(value)}`];
+  parts.push(`Path=/`);
+  parts.push(`Max-Age=${maxAge}`);
+  parts.push(`SameSite=Lax`);
+  parts.push(`Secure`);
+  return parts.join('; ');
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -42,7 +49,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Nome, e-mail e senha são obrigatórios.' });
     }
 
-    // Hash password
     const hashFn = (bcrypt as any).hash || (bcrypt as any).default?.hash;
     let hashedPassword: string;
     if (typeof hashFn === 'function') {
@@ -53,13 +59,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const userId = 'usr-' + Date.now() + '-' + Math.floor(Math.random() * 9999);
 
-    // Database
     const sql = getDb();
     if (!sql) {
       return res.status(500).json({ error: 'Banco de dados não configurado.' });
     }
 
-    // Ensure table exists
     await sql`
       CREATE TABLE IF NOT EXISTS users (
         id VARCHAR(100) PRIMARY KEY,
@@ -70,30 +74,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       )
     `;
 
-    // Check if email already exists
     const existing = await sql`SELECT id FROM users WHERE email = ${email}`;
     if (existing && existing.length > 0) {
       return res.status(409).json({ error: 'Este e-mail já está cadastrado.' });
     }
 
-    // Insert user
     await sql`
       INSERT INTO users (id, name, email, password_hash)
       VALUES (${userId}, ${name}, ${email}, ${hashedPassword})
     `;
 
-    // Generate token
     const token = signToken({ userId, email, name });
-
-    // Set cookie
-    const cookie = serialize('auth_token', token, {
-      httpOnly: false,
-      secure: true,
-      sameSite: 'lax',
-      maxAge: 86400,
-      path: '/'
-    });
-    res.setHeader('Set-Cookie', cookie);
+    res.setHeader('Set-Cookie', makeCookie('auth_token', token, 86400));
 
     return res.status(200).json({
       success: true,
