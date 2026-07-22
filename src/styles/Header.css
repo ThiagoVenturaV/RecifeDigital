@@ -1,0 +1,144 @@
+/* Header Component Styles */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border-color, #E2E8F0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.header-inner {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-brand-box {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-brand-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.brand-text {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 900;
+  font-size: 1.5rem;
+  color: var(--secondary, #00529C);
+  text-decoration: none;
+}
+
+.brand-text span {
+  color: var(--primary, #F95700);
+}
+
+.partner-logos {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-left: 16px;
+  border-left: 1px solid var(--border-color, #E2E8F0);
+}
+
+.partner-logo-img {
+  height: 32px;
+  width: auto;
+  max-width: 140px;
+  object-fit: contain;
+}
+
+.nav-desktop {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.nav-link-btn {
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 18px 0;
+  color: var(--text-muted, #64748B);
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  cursor: pointer;
+}
+
+.nav-link-btn.active {
+  color: var(--primary, #F95700);
+  border-bottom-color: var(--primary, #F95700);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon-btn {
+  padding: 8px;
+  border-radius: 9999px;
+  color: var(--text-muted, #64748B);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.icon-btn:hover {
+  background-color: #F1F5F9;
+}
+
+.badge-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid #FED7AA;
+  background-color: var(--primary-light, #FFF0E6);
+  color: var(--primary, #F95700);
+  cursor: pointer;
+}
+
+.accessibility-dropdown {
+  position: absolute;
+  right: 0;
+  margin-top: 8px;
+  width: 250px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  border: 1px solid #E2E8F0;
+  padding: 16px;
+  z-index: 50;
+}
+
+.avatar-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+@media (max-width: 768px) {
+  .nav-desktop, .partner-logos {
+    display: none;
+  }
+}

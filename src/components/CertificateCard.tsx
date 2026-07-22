@@ -2,6 +2,7 @@ import React from 'react';
 import { Download, Share2, Calendar } from 'lucide-react';
 import type { Certificate } from '../types';
 import { generateCertificatePDF } from '../utils/pdfGenerator';
+import '../styles/CertificateCard.css';
 
 interface CertificateCardProps {
   certificate: Certificate;
@@ -31,74 +32,68 @@ export const CertificateCard: React.FC<CertificateCardProps> = ({
 
   if (isFeatured) {
     return (
-      <div className="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 shadow-sm relative overflow-hidden">
+      <div className="cert-featured-card">
         {/* Top Header info */}
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
-            <SparkleIcon className="w-3.5 h-3.5 text-emerald-600" /> Mais Recente
+        <div className="cert-header-row">
+          <span className="cert-tag-recent">
+            ★ Mais Recente
           </span>
-          <div className="flex items-center space-x-3">
-            <img src="/recife_azul_sobre_branco.png" alt="Prefeitura do Recife" className="h-8 w-auto object-contain" />
-            <img src="/logoSchool.svg" alt="CESAR School" className="h-6 w-auto object-contain" />
+          <div className="partner-logos">
+            <img src="/recife_azul_sobre_branco.png" alt="Prefeitura do Recife" className="partner-logo-img" />
+            <img src="/logoSchool.svg" alt="CESAR School" className="partner-logo-img" />
           </div>
         </div>
 
         {/* Certificate Title & Date */}
-        <div className="mt-4">
-          <h2 className="font-black text-2xl md:text-3xl text-[#00529C] font-['Outfit'] leading-snug">
+        <div>
+          <h2 className="cert-blue-title">
             {certificate.courseTitle}
           </h2>
-          <p className="text-slate-500 text-sm mt-1 flex items-center gap-1.5 font-medium">
-            <Calendar className="w-4 h-4 text-slate-400" />
+          <p className="cert-date-text">
+            <Calendar style={{ width: 16, height: 16 }} />
             Concluído em {certificate.issueDate}
           </p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-            <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider block">
-              Carga Horária
-            </span>
-            <span className="font-extrabold text-xl text-[#F95700] mt-1 block">
+        <div className="cert-stats-row">
+          <div className="stat-box">
+            <span className="stat-label">Carga Horária</span>
+            <span className="stat-val-orange">
               {certificate.workloadHours} Horas
             </span>
           </div>
 
-          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-            <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider block">
-              Nota Final
-            </span>
-            <span className="font-extrabold text-xl text-emerald-600 mt-1 block">
+          <div className="stat-box">
+            <span className="stat-label">Nota Final</span>
+            <span className="stat-val-green">
               {certificate.grade.toFixed(1)} / 10
             </span>
           </div>
 
-          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-            <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider block">
-              Competências
-            </span>
-            <span className="font-bold text-sm text-[#F95700] mt-1 block line-clamp-1">
+          <div className="stat-box">
+            <span className="stat-label">Competências</span>
+            <span className="stat-val-comp">
               {certificate.competencies.join(', ')}
             </span>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-4 mt-8">
+        <div className="cert-btn-group">
           <button
             onClick={handleDownloadPDF}
-            className="flex-1 sm:flex-initial py-3.5 px-8 bg-[#F95700] hover:bg-[#E04B00] text-white font-black text-base rounded-2xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+            className="btn-download-pdf"
           >
-            <Download className="w-5 h-5" />
+            <Download style={{ width: 18, height: 18 }} />
             <span>BAIXAR PDF</span>
           </button>
 
           <button
             onClick={handleShareClick}
-            className="flex-1 sm:flex-initial py-3.5 px-8 bg-white hover:bg-slate-50 text-[#00529C] border-2 border-[#00529C] font-bold text-base rounded-2xl transition-all flex items-center justify-center gap-2"
+            className="btn-share"
           >
-            <Share2 className="w-5 h-5" />
+            <Share2 style={{ width: 18, height: 18 }} />
             <span>COMPARTILHAR</span>
           </button>
         </div>
@@ -106,48 +101,44 @@ export const CertificateCard: React.FC<CertificateCardProps> = ({
     );
   }
 
-  // Previous Certificate Card (Grid item)
+  // Previous Certificate Card
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
-      <div>
-        <div className="flex items-center justify-between">
-          <img src="/prefeitura-recife.svg" alt="Prefeitura" className="h-6 w-auto opacity-75" />
-          <span className="px-2.5 py-0.5 rounded-md bg-blue-50 text-[#00529C] font-bold text-[10px] uppercase tracking-wide">
-            {certificate.competencies[0] || 'CONCLUÍDO'}
-          </span>
+    <div className="course-card">
+      <div className="card-body">
+        <div>
+          <div className="cert-header-row">
+            <img src="/recife_azul_sobre_branco.png" alt="Prefeitura" className="partner-logo-img" style={{ height: 24 }} />
+            <span className="card-category-badge" style={{ position: 'static' }}>
+              {certificate.competencies[0] || 'CONCLUÍDO'}
+            </span>
+          </div>
+
+          <h3 className="card-title" style={{ marginTop: 12 }}>
+            {certificate.courseTitle}
+          </h3>
+          <p className="cert-date-text">
+            {certificate.issueDate} • {certificate.workloadHours}h
+          </p>
         </div>
 
-        <h3 className="font-bold text-base text-slate-900 mt-4 leading-snug">
-          {certificate.courseTitle}
-        </h3>
-        <p className="text-slate-500 text-xs mt-1">
-          {certificate.issueDate} • {certificate.workloadHours}h
-        </p>
-      </div>
+        <div className="cert-mini-btn-group">
+          <button
+            onClick={handleDownloadPDF}
+            className="mini-btn"
+          >
+            <Download style={{ width: 14, height: 14 }} />
+            <span>PDF</span>
+          </button>
 
-      <div className="grid grid-cols-2 gap-2 mt-6 pt-4 border-t border-slate-100">
-        <button
-          onClick={handleDownloadPDF}
-          className="py-2 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition-colors flex items-center justify-center gap-1.5"
-        >
-          <Download className="w-3.5 h-3.5 text-slate-500" />
-          <span>PDF</span>
-        </button>
-
-        <button
-          onClick={handleShareClick}
-          className="py-2 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition-colors flex items-center justify-center gap-1.5"
-        >
-          <Share2 className="w-3.5 h-3.5 text-slate-500" />
-          <span>Share</span>
-        </button>
+          <button
+            onClick={handleShareClick}
+            className="mini-btn"
+          >
+            <Share2 style={{ width: 14, height: 14 }} />
+            <span>Share</span>
+          </button>
+        </div>
       </div>
     </div>
   );
 };
-
-const SparkleIcon = ({ className }: { className?: string }) => (
-  <svg className={className} fill="currentColor" viewBox="0 0 20 20">
-    <path d="M10 2a1 1 0 011 1v1.323l1.954-1.129a1 1 0 111 1.732l-1.954 1.129 1.954 1.129a1 1 0 01-1 1.732L11 6.323V7.65a1 1 0 11-2 0V6.323L7.046 7.452a1 1 0 01-1-1.732l1.954-1.129-1.954-1.129a1 1 0 011-1.732L9 4.323V3a1 1 0 011-1z" />
-  </svg>
-);

@@ -36,98 +36,82 @@ export const VerifyCertificateModal: React.FC<VerifyCertificateModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-      <div className="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl border border-slate-200 relative animate-in fade-in zoom-in-95 duration-200">
+    <div className="modal-overlay">
+      <div className="modal-content">
         
         {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-5 right-5 p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-colors"
-        >
-          <X className="w-5 h-5" />
+        <button onClick={onClose} className="close-btn">
+          <X style={{ width: 20, height: 20 }} />
         </button>
 
         {/* Modal Header */}
-        <div className="flex items-center gap-3">
-          <div className="p-3 bg-blue-50 text-[#00529C] rounded-2xl">
-            <ShieldCheck className="w-6 h-6" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ padding: 10, background: '#EFF6FF', borderRadius: 12, color: '#00529C' }}>
+            <ShieldCheck style={{ width: 24, height: 24 }} />
           </div>
           <div>
-            <h3 className="font-bold text-xl text-slate-900 font-['Outfit']">
+            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '1.25rem' }}>
               Verificar Autenticidade
             </h3>
-            <p className="text-slate-500 text-xs mt-0.5">
+            <p style={{ color: '#64748B', fontSize: '0.75rem' }}>
               Validação de certificado da CESAR School & Prefeitura do Recife
             </p>
           </div>
         </div>
 
         {/* Search Form */}
-        <form onSubmit={handleVerify} className="mt-6 space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-              Código de Verificação do Certificado
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Ex: RDFE-2024-9842X"
-                value={code}
-                onChange={e => setCode(e.target.value)}
-                className="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono text-slate-900 uppercase focus:outline-hidden focus:ring-2 focus:ring-[#F95700]"
-                required
-              />
-              <button
-                type="submit"
-                className="absolute right-2 top-2 p-1.5 bg-[#F95700] hover:bg-[#E04B00] text-white rounded-lg transition-colors"
-              >
-                <Search className="w-4 h-4" />
-              </button>
-            </div>
+        <form onSubmit={handleVerify} style={{ marginTop: 20 }}>
+          <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: 6 }}>
+            Código de Verificação do Certificado
+          </label>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input
+              type="text"
+              placeholder="Ex: RDFE-2024-9842X"
+              value={code}
+              onChange={e => setCode(e.target.value)}
+              className="search-input"
+              style={{ paddingLeft: 12, fontFamily: 'monospace', fontSize: '0.85rem' }}
+              required
+            />
+            <button
+              type="submit"
+              className="btn-card-action"
+              style={{ marginTop: 0, width: 'auto', padding: '8px 16px' }}
+            >
+              <Search style={{ width: 16, height: 16 }} />
+            </button>
           </div>
         </form>
 
         {/* Verification Result Area */}
         {result.status === 'valid' && result.cert && (
-          <div className="mt-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-2">
-            <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+          <div style={{ marginTop: 20, padding: 16, borderRadius: 16, background: '#D1FAE5', border: '1px solid #A7F3D0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#065F46', fontWeight: 800, fontSize: '0.85rem' }}>
+              <CheckCircle2 style={{ width: 18, height: 18 }} />
               <span>Certificado Válido & Autêntico</span>
             </div>
-            <div className="text-xs text-slate-700 space-y-1 pl-7">
-              <p>
-                <strong>Aluno:</strong> {result.cert.studentName}
-              </p>
-              <p>
-                <strong>Curso:</strong> {result.cert.courseTitle}
-              </p>
-              <p>
-                <strong>Emissão:</strong> {result.cert.issueDate} ({result.cert.workloadHours}h)
-              </p>
-              <p className="text-[10px] text-emerald-700 font-mono mt-2">
-                Registro Hash Blockchain: 0x9f8a...c32e (Assinado por CESAR School)
-              </p>
+            <div style={{ fontSize: '0.75rem', color: '#1e293b', marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <p><strong>Aluno:</strong> {result.cert.studentName}</p>
+              <p><strong>Curso:</strong> {result.cert.courseTitle}</p>
+              <p><strong>Emissão:</strong> {result.cert.issueDate} ({result.cert.workloadHours}h)</p>
             </div>
           </div>
         )}
 
         {result.status === 'invalid' && (
-          <div className="mt-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
-            <div className="text-xs text-rose-800 space-y-1">
-              <p className="font-bold">Código não encontrado</p>
-              <p>
-                Verifique se os caracteres do código foram digitados corretamente ou entre em contato com o suporte do Recife Digital.
-              </p>
+          <div style={{ marginTop: 20, padding: 16, borderRadius: 16, background: '#FFE4E6', border: '1px solid #FECDD3', color: '#9F1239', fontSize: '0.8rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 800 }}>
+              <AlertCircle style={{ width: 18, height: 18 }} />
+              <span>Código não encontrado</span>
             </div>
+            <p style={{ marginTop: 4 }}>Verifique se os caracteres foram digitados corretamente.</p>
           </div>
         )}
 
         {/* Quick test hint */}
-        <div className="mt-6 pt-4 border-t border-slate-100 text-center">
-          <p className="text-[11px] text-slate-400">
-            Dica para teste: Utilize o código <code className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-700 font-mono">RDFE-2024-9842X</code>
-          </p>
+        <div style={{ marginTop: 20, paddingTop: 12, borderTop: '1px solid #F1F5F9', textAlign: 'center', fontSize: '0.7rem', color: '#94A3B8' }}>
+          Dica para teste: Utilize o código <code style={{ background: '#F1F5F9', padding: '2px 6px', borderRadius: 4, fontFamily: 'monospace' }}>RDFE-2024-9842X</code>
         </div>
       </div>
     </div>

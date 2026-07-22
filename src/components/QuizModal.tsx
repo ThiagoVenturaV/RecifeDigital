@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Clock, AlertCircle, Award, CheckCircle2, RotateCcw, ArrowRight } from 'lucide-react';
+import { X, Clock, AlertCircle, Award } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import type { Course } from '../types';
 
@@ -27,7 +27,6 @@ export const QuizModal: React.FC<QuizModalProps> = ({
     isPassed: boolean;
   } | null>(null);
 
-  // Countdown timer effect
   useEffect(() => {
     if (!isOpen || isSubmitted) return;
 
@@ -96,96 +95,89 @@ export const QuizModal: React.FC<QuizModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-xs flex flex-col">
+    <div className="modal-overlay" style={{ alignItems: 'flex-start', paddingTop: 40, overflowY: 'auto' }}>
       
-      {/* Top Header Bar */}
-      <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-4 sm:px-8 py-4 flex items-center justify-between shadow-xs">
-        <div>
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
-            AVALIAÇÃO FINAL
-          </span>
-          <h2 className="font-extrabold text-xl text-[#00529C] font-['Outfit']">
-            {course.title}
-          </h2>
-        </div>
-
-        {/* Timer Box */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 px-4 py-1.5 rounded-full font-mono text-sm font-bold text-[#00529C]">
-            <Clock className="w-4 h-4 text-[#F95700]" />
-            <span>TEMPO RESTANTE {formatTime(secondsLeft)}</span>
+      <div style={{ maxWidth: 800, width: '100%', background: '#ffffff', borderRadius: 28, padding: 24, boxShadow: '0 20px 40px rgba(0,0,0,0.2)', position: 'relative', marginBottom: 40 }}>
+        
+        {/* Top Header Bar */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #E2E8F0', paddingBottom: 16, marginBottom: 16 }}>
+          <div>
+            <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase' }}>
+              AVALIAÇÃO FINAL
+            </span>
+            <h2 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '1.3rem', color: '#00529C' }}>
+              {course.title}
+            </h2>
           </div>
 
-          <button
-            onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-colors"
-          >
-            <X className="w-6 h-6" />
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 9999, background: '#EFF6FF', color: '#00529C', fontWeight: 800, fontSize: '0.8rem', fontFamily: 'monospace' }}>
+              <Clock style={{ width: 14, height: 14, color: '#F95700' }} />
+              <span>TEMPO RESTANTE {formatTime(secondsLeft)}</span>
+            </div>
+
+            <button onClick={onClose} className="close-btn" style={{ position: 'static' }}>
+              <X style={{ width: 20, height: 20 }} />
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* Progress Line below header */}
-      <div className="bg-slate-100 h-1.5 w-full">
-        <div
-          className="bg-[#F95700] h-full transition-all duration-300"
-          style={{ width: `${progressPercent}%` }}
-        />
-      </div>
+        {/* Progress Line */}
+        <div className="progress-bar-bg" style={{ marginBottom: 20 }}>
+          <div className="progress-bar-fill" style={{ width: `${progressPercent}%` }} />
+        </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-8 space-y-6">
-        
         {/* Info Banner */}
-        <div className="bg-amber-50 border border-amber-200/80 rounded-2xl p-4 flex items-start gap-3 text-amber-900 text-sm">
-          <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-          <p>
-            Leia atentamente cada questão. Você precisa de <strong>70% de acerto</strong> para ser aprovado e habilitar a emissão do seu certificado do Recife Digital & CESAR School.
-          </p>
+        <div style={{ padding: 12, borderRadius: 12, background: '#FEF3C7', border: '1px solid #FDE68A', color: '#78350F', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+          <AlertCircle style={{ width: 18, height: 18, color: '#D97706', flexShrink: 0 }} />
+          <span>Leia atentamente cada questão. Você precisa de <strong>70% de acerto</strong> para ser aprovado.</span>
         </div>
 
         {/* Questions List */}
-        <div className="space-y-6">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {exam.questions.map((q, idx) => {
             const selectedOpt = userAnswers[q.id];
             return (
-              <div
-                key={q.id}
-                className="bg-white rounded-2xl border border-slate-200 p-6 shadow-2xs space-y-4"
-              >
-                <div className="flex items-start gap-3">
-                  <span className="w-8 h-8 rounded-full bg-slate-100 font-extrabold text-sm text-slate-700 flex items-center justify-center flex-shrink-0">
+              <div key={q.id} className="card-details-box" style={{ padding: 20 }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 12 }}>
+                  <span style={{ width: 28, height: 28, borderRadius: '50%', background: '#F1F5F9', color: '#334155', fontWeight: 800, fontSize: '0.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     {idx + 1}
                   </span>
-                  <h3 className="font-bold text-base text-slate-900 leading-snug pt-1">
+                  <h3 style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>
                     {q.question}
                   </h3>
                 </div>
 
                 {/* Options */}
-                <div className="space-y-2.5 pl-11">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingLeft: 40 }}>
                   {q.options?.map(opt => {
                     const isSelected = selectedOpt === opt.id;
                     return (
                       <button
                         key={opt.id}
                         onClick={() => handleSelectOption(q.id, opt.id)}
-                        className={`w-full text-left p-4 rounded-xl border transition-all flex items-center gap-3 ${
-                          isSelected
-                            ? 'bg-orange-50/70 border-[#F95700] ring-1 ring-[#F95700] text-slate-900 font-semibold'
-                            : 'bg-white border-slate-200 hover:border-slate-300 text-slate-700'
-                        }`}
+                        style={{
+                          width: '100%',
+                          textAlign: 'left',
+                          padding: 12,
+                          borderRadius: 12,
+                          border: isSelected ? '1px solid #F95700' : '1px solid #E2E8F0',
+                          background: isSelected ? '#FFF0E6' : '#ffffff',
+                          fontSize: '0.8rem',
+                          fontWeight: isSelected ? 700 : 500,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 10
+                        }}
                       >
-                        <div
-                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                            isSelected
-                              ? 'border-[#F95700] bg-[#F95700] text-white'
-                              : 'border-slate-300 bg-white'
-                          }`}
-                        >
-                          {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
-                        </div>
-                        <span className="text-sm leading-relaxed">{opt.text}</span>
+                        <input
+                          type="radio"
+                          name={`q-${q.id}`}
+                          checked={isSelected}
+                          onChange={() => {}}
+                        />
+                        <span>{opt.text}</span>
                       </button>
                     );
                   })}
@@ -194,93 +186,45 @@ export const QuizModal: React.FC<QuizModalProps> = ({
             );
           })}
         </div>
-      </div>
 
-      {/* Sticky Bottom Finish Bar */}
-      {!isSubmitted && (
-        <div className="sticky bottom-0 bg-white border-t border-slate-200 p-4 shadow-lg">
-          <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-slate-500 text-center sm:text-left">
-              Certifique-se de revisar suas respostas. Questões respondidas: <strong>{answeredCount} de {totalQuestions}</strong>.
-            </p>
+        {/* Submit Button Bar */}
+        {!isSubmitted && (
+          <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <span style={{ fontSize: '0.75rem', color: '#64748B' }}>
+              Respondidas: <strong>{answeredCount} de {totalQuestions}</strong>
+            </span>
             <button
               onClick={handleSubmit}
               disabled={answeredCount === 0}
-              className={`w-full sm:w-auto py-3 px-8 rounded-xl font-extrabold text-sm text-white shadow-md transition-all flex items-center justify-center gap-2 ${
-                answeredCount > 0
-                  ? 'bg-[#F95700] hover:bg-[#E04B00]'
-                  : 'bg-slate-300 cursor-not-allowed'
-              }`}
+              className="btn-card-action"
+              style={{ marginTop: 0, width: 'auto', padding: '10px 24px', opacity: answeredCount > 0 ? 1 : 0.5, cursor: answeredCount > 0 ? 'pointer' : 'not-allowed' }}
             >
-              <Award className="w-5 h-5" />
+              <Award style={{ width: 18, height: 18 }} />
               <span>FINALIZAR PROVA</span>
             </button>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Score Modal Result */}
-      {isSubmitted && scoreResult && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl border border-slate-200 text-center space-y-6">
-            <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center bg-orange-100 text-[#F95700]">
-              {scoreResult.isPassed ? (
-                <CheckCircle2 className="w-10 h-10 text-emerald-600" />
-              ) : (
-                <AlertCircle className="w-10 h-10 text-amber-600" />
-              )}
-            </div>
-
-            <div>
-              <h3 className="font-extrabold text-2xl text-slate-900 font-['Outfit']">
-                {scoreResult.isPassed ? 'Parabéns! Aprovação Concluída!' : 'Tente Novamente!'}
-              </h3>
-              <p className="text-slate-500 text-sm mt-1">
-                {scoreResult.isPassed
-                  ? 'Você atingiu os critérios necessários para receber seu certificado!'
-                  : 'Você precisa de no mínimo 70% de acerto para ser aprovado.'}
-              </p>
-            </div>
-
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block">
-                Sua Nota Final
-              </span>
-              <span className={`font-black text-4xl mt-1 block ${scoreResult.isPassed ? 'text-emerald-600' : 'text-slate-800'}`}>
-                {scoreResult.percentage}%
-              </span>
-              <span className="text-xs text-slate-500 mt-1 block">
-                {scoreResult.correctCount} acertos de {scoreResult.totalCount} questões
-              </span>
-            </div>
-
-            <div className="flex gap-3">
-              {!scoreResult.isPassed && (
-                <button
-                  onClick={() => {
-                    setIsSubmitted(false);
-                    setUserAnswers({});
-                    setSecondsLeft(exam.durationMinutes * 60);
-                  }}
-                  className="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-sm rounded-xl transition-colors flex items-center justify-center gap-2"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                  <span>Refazer</span>
-                </button>
-              )}
-
-              <button
-                onClick={onClose}
-                className="flex-1 py-3 px-4 bg-[#F95700] hover:bg-[#E04B00] text-white font-bold text-sm rounded-xl transition-colors flex items-center justify-center gap-2"
-              >
-                <span>{scoreResult.isPassed ? 'Ver Certificado' : 'Fechar'}</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
+        {/* Score Modal Result */}
+        {isSubmitted && scoreResult && (
+          <div style={{ marginTop: 24, padding: 24, borderRadius: 20, background: scoreResult.isPassed ? '#D1FAE5' : '#FFE4E6', textAlign: 'center' }}>
+            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: '1.5rem', color: scoreResult.isPassed ? '#065F46' : '#9F1239' }}>
+              {scoreResult.isPassed ? 'Parabéns! Aprovação Concluída!' : 'Tente Novamente!'}
+            </h3>
+            <span style={{ fontWeight: 900, fontSize: '2.5rem', display: 'block', margin: '8px 0', color: scoreResult.isPassed ? '#059669' : '#BE123C' }}>
+              {scoreResult.percentage}%
+            </span>
+            <button
+              onClick={onClose}
+              className="btn-primary"
+              style={{ marginTop: 12 }}
+            >
+              {scoreResult.isPassed ? 'Ver Certificado' : 'Fechar'}
+            </button>
           </div>
-        </div>
-      )}
+        )}
 
+      </div>
     </div>
   );
 };

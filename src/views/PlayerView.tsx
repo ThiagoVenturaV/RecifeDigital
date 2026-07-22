@@ -6,11 +6,8 @@ import {
   Lock,
   FileText,
   Award,
-  Settings,
-  LogOut,
   BookOpen,
-  HelpCircle,
-  MessageSquare
+  HelpCircle
 } from 'lucide-react';
 import type { Course, Lesson } from '../types';
 
@@ -27,13 +24,11 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
   onOpenExam,
   onCompleteLesson
 }) => {
-  // Find current active module and lesson
   const currentModule = course.modules[1] || course.modules[0];
   const [selectedLesson, setSelectedLesson] = useState<Lesson>(
     currentModule?.lessons[1] || currentModule?.lessons[0]
   );
 
-  const [activeTab, setActiveTab] = useState<'descricao' | 'materiais'>('descricao');
   const [selectedOption, setSelectedOption] = useState<string>('');
   const [fixacaoSubmitted, setFixacaoSubmitted] = useState<boolean>(false);
   const [fixacaoSuccess, setFixacaoSuccess] = useState<boolean>(false);
@@ -53,272 +48,163 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF6F0] -mx-4 sm:-mx-6 lg:-mx-8 -my-6 sm:-my-8">
+    <div style={{ paddingBottom: '3rem' }}>
       
-      {/* Top Mobile Bar */}
-      <div className="md:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
         <button
           onClick={onBackToCatalog}
-          className="flex items-center gap-1.5 text-[#00529C] font-bold text-sm"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', color: '#00529C', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Voltar</span>
+          <ArrowLeft style={{ width: 16, height: 16 }} />
+          <span>Voltar aos Cursos</span>
         </button>
-        <span className="font-extrabold text-sm text-slate-900 truncate max-w-[200px] font-['Outfit']">
-          {course.title}
-        </span>
+
         <button
           onClick={onOpenExam}
-          className="p-1.5 bg-[#F95700] text-white rounded-lg text-xs font-bold"
+          className="btn-card-action"
+          style={{ marginTop: 0, width: 'auto', padding: '8px 16px' }}
         >
-          Prova
+          <Award style={{ width: 16, height: 16 }} />
+          <span>Emitir Certificado / Prova</span>
         </button>
       </div>
 
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="player-grid">
         
         {/* Left Sidebar Navigation (Desktop) */}
-        <div className="hidden lg:block lg:col-span-3 space-y-6">
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-6">
-            
-            {/* Header info */}
-            <div>
-              <button
-                onClick={onBackToCatalog}
-                className="flex items-center gap-1.5 text-[#00529C] hover:text-[#003F78] font-bold text-xs mb-3 transition-colors"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Voltar ao Catálogo</span>
-              </button>
-              <h3 className="font-black text-lg text-[#00529C] font-['Outfit'] leading-snug">
-                {course.title}
-              </h3>
-              <span className="text-xs text-slate-500 font-medium block mt-1">
-                {currentModule?.title}
-              </span>
-            </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="card-details-box">
+            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '1.1rem', color: '#00529C', marginBottom: 4 }}>
+              {course.title}
+            </h3>
+            <p style={{ fontSize: '0.75rem', color: '#64748B', marginBottom: 16 }}>
+              {currentModule?.title}
+            </p>
 
-            {/* Menu Links */}
-            <nav className="space-y-1">
-              <button className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-orange-50 text-[#F95700] font-bold text-sm">
-                <Play className="w-4 h-4" />
+            <nav style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <button style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 12, background: '#FFF0E6', color: '#F95700', fontWeight: 700, fontSize: '0.85rem', border: 'none', cursor: 'pointer' }}>
+                <Play style={{ width: 16, height: 16 }} />
                 <span>Aulas</span>
               </button>
-              <button className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-sm transition-colors">
-                <FileText className="w-4 h-4 text-slate-400" />
+              <button style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 12, background: 'none', color: '#475569', fontWeight: 500, fontSize: '0.85rem', border: 'none', cursor: 'pointer' }}>
+                <FileText style={{ width: 16, height: 16 }} />
                 <span>Exercícios</span>
               </button>
-              <button className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-sm transition-colors">
-                <BookOpen className="w-4 h-4 text-slate-400" />
+              <button style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 12, background: 'none', color: '#475569', fontWeight: 500, fontSize: '0.85rem', border: 'none', cursor: 'pointer' }}>
+                <BookOpen style={{ width: 16, height: 16 }} />
                 <span>Materiais</span>
               </button>
-              <button className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-sm transition-colors">
-                <MessageSquare className="w-4 h-4 text-slate-400" />
-                <span>Dúvidas</span>
-              </button>
             </nav>
-
-            {/* Certificate Button */}
-            <div className="pt-4 border-t border-slate-100 space-y-3">
-              <button
-                onClick={onOpenExam}
-                className="w-full py-3 px-4 bg-[#F95700] hover:bg-[#E04B00] text-white font-extrabold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2"
-              >
-                <Award className="w-4 h-4" />
-                <span>EMITIR CERTIFICADO</span>
-              </button>
-
-              <div className="pt-2 text-xs text-slate-500 space-y-2">
-                <button className="w-full flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors">
-                  <Settings className="w-4 h-4" />
-                  <span>Configurações</span>
-                </button>
-                <button
-                  onClick={onBackToCatalog}
-                  className="w-full flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>Sair</span>
-                </button>
-              </div>
-            </div>
-
           </div>
         </div>
 
-        {/* Center Player & Details Column */}
-        <div className="lg:col-span-6 space-y-6">
-          
-          {/* Main Video Player Container (Exact Match to Figma player) */}
-          <div className="relative aspect-video rounded-3xl overflow-hidden bg-slate-950 shadow-xl border border-slate-800 group">
+        {/* Center Video & Details */}
+        <div>
+          <div className="video-frame-box">
             <iframe
               src={selectedLesson.videoUrl || 'https://www.youtube.com/embed/dQw4w9WgXcQ'}
               title={selectedLesson.title}
-              className="w-full h-full border-0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
           </div>
 
-          {/* Lesson Details Card */}
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 shadow-2xs space-y-6">
-            
-            <div>
-              <span className="inline-block px-3 py-1 rounded-full bg-orange-100 text-[#F95700] text-xs font-bold mb-2">
-                Módulo 2 • Aula {selectedLesson.id}
-              </span>
-              <h1 className="font-extrabold text-2xl md:text-3xl text-slate-900 font-['Outfit'] leading-snug">
-                {selectedLesson.title}
-              </h1>
-              <p className="text-slate-600 text-sm mt-3 leading-relaxed">
-                {selectedLesson.description}
-              </p>
+          <div className="card-details-box">
+            <span className="card-category-badge" style={{ position: 'static', display: 'inline-block', marginBottom: 12, background: '#FFF0E6', color: '#F95700' }}>
+              Módulo 2 • Aula {selectedLesson.id}
+            </span>
+
+            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '1.5rem', color: '#0f172a', marginBottom: 12 }}>
+              {selectedLesson.title}
+            </h1>
+            <p style={{ fontSize: '0.9rem', color: '#475569', lineHeight: 1.6, marginBottom: 20 }}>
+              {selectedLesson.description}
+            </p>
+
+            {/* Description Tab & Topics */}
+            <div style={{ paddingTop: 16, borderTop: '1px solid #E2E8F0' }}>
+              <h4 style={{ fontWeight: 800, fontSize: '0.85rem', marginBottom: 8 }}>Tópicos Abordados:</h4>
+              <ul style={{ paddingLeft: 20, fontSize: '0.85rem', color: '#475569', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {selectedLesson.topicsCovered.map((topic, i) => (
+                  <li key={i}>{topic}</li>
+                ))}
+              </ul>
             </div>
-
-            {/* Instructor Badge */}
-            {selectedLesson.instructorName && (
-              <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-100">
-                <img
-                  src={
-                    selectedLesson.instructorAvatar ||
-                    'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80'
-                  }
-                  alt={selectedLesson.instructorName}
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-                <div>
-                  <span className="font-bold text-xs text-slate-900 block">
-                    {selectedLesson.instructorName}
-                  </span>
-                  <span className="text-[11px] text-slate-500 block">
-                    {selectedLesson.instructorRole}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* Description / Support Tabs */}
-            <div className="space-y-4">
-              <div className="flex border-b border-slate-200">
-                <button
-                  onClick={() => setActiveTab('descricao')}
-                  className={`pb-3 font-bold text-sm transition-colors border-b-2 mr-6 ${
-                    activeTab === 'descricao'
-                      ? 'border-[#F95700] text-[#F95700]'
-                      : 'border-transparent text-slate-500 hover:text-slate-800'
-                  }`}
-                >
-                  Descrição
-                </button>
-                <button
-                  onClick={() => setActiveTab('materiais')}
-                  className={`pb-3 font-bold text-sm transition-colors border-b-2 ${
-                    activeTab === 'materiais'
-                      ? 'border-[#F95700] text-[#F95700]'
-                      : 'border-transparent text-slate-500 hover:text-slate-800'
-                  }`}
-                >
-                  Materiais de Apoio
-                </button>
-              </div>
-
-              {activeTab === 'descricao' ? (
-                <div className="space-y-3 text-sm text-slate-700">
-                  <p className="font-bold text-slate-900">Tópicos abordados:</p>
-                  <ul className="space-y-1.5 list-disc list-inside text-slate-600">
-                    {selectedLesson.topicsCovered.map((topic, i) => (
-                      <li key={i}>{topic}</li>
-                    ))}
-                  </ul>
-                </div>
-              ) : (
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-2">
-                  <p className="font-bold text-slate-800">Arquivos para download:</p>
-                  <a href="#" className="flex items-center gap-2 text-[#00529C] hover:underline font-semibold">
-                    <FileText className="w-4 h-4" /> Apostila_Excel_Modulo2.pdf (1.8 MB)
-                  </a>
-                  <a href="#" className="flex items-center gap-2 text-[#00529C] hover:underline font-semibold">
-                    <FileText className="w-4 h-4" /> Exemplo_Planilha_Pratica.xlsx (420 KB)
-                  </a>
-                </div>
-              )}
-            </div>
-
           </div>
-
         </div>
 
-        {/* Right Sidebar: Module Content & Fixação Rápida Widget */}
-        <div className="lg:col-span-3 space-y-6">
+        {/* Right Sidebar: Module Content & Fixação Rápida */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           
-          {/* Módulo Content List */}
-          <div className="bg-white rounded-3xl border border-slate-200 p-5 shadow-2xs space-y-4">
-            <h3 className="font-bold text-base text-slate-900 font-['Outfit']">
+          {/* Module Content */}
+          <div className="card-details-box">
+            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '1rem', marginBottom: 12 }}>
               Conteúdo do Módulo
             </h3>
             
-            <div className="space-y-2.5">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {currentModule?.lessons.map(les => {
                 const isSelected = selectedLesson.id === les.id;
                 return (
                   <button
                     key={les.id}
                     onClick={() => setSelectedLesson(les)}
-                    className={`w-full text-left p-3 rounded-2xl border transition-all flex items-start gap-3 ${
-                      isSelected
-                        ? 'bg-orange-50/70 border-[#F95700] ring-1 ring-[#F95700]'
-                        : 'bg-white border-slate-200 hover:border-slate-300'
-                    }`}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 10,
+                      padding: 12,
+                      borderRadius: 12,
+                      border: isSelected ? '1px solid #F95700' : '1px solid #E2E8F0',
+                      background: isSelected ? '#FFF0E6' : '#ffffff',
+                      textAlign: 'left',
+                      cursor: 'pointer'
+                    }}
                   >
                     {les.completed ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+                      <CheckCircle2 style={{ width: 16, height: 16, color: '#10B981', flexShrink: 0 }} />
                     ) : isSelected ? (
-                      <Play className="w-4 h-4 text-[#F95700] fill-[#F95700] flex-shrink-0 mt-0.5" />
+                      <Play style={{ width: 16, height: 16, color: '#F95700', flexShrink: 0 }} />
                     ) : (
-                      <Lock className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
+                      <Lock style={{ width: 16, height: 16, color: '#94A3B8', flexShrink: 0 }} />
                     )}
-
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-xs font-bold truncate ${isSelected ? 'text-[#F95700]' : 'text-slate-800'}`}>
-                        {les.title}
-                      </p>
-                      <span className="text-[10px] text-slate-400 block mt-0.5">
-                        {isSelected ? 'Assistindo agora • ' : ''}{les.durationMinutes} min
-                      </span>
-                    </div>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: isSelected ? '#F95700' : '#1e293b' }}>
+                      {les.title}
+                    </span>
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* Fixação Rápida Widget (Matching Figma Interactive Widget) */}
-          <div className="bg-[#FAF6F0] rounded-3xl border border-slate-200/80 p-5 shadow-2xs space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-orange-100 text-[#F95700] rounded-xl">
-                <HelpCircle className="w-5 h-5" />
-              </div>
-              <h3 className="font-extrabold text-base text-slate-900 font-['Outfit']">
-                Fixação Rápida
-              </h3>
-            </div>
+          {/* Fixação Rápida */}
+          <div className="card-details-box" style={{ backgroundColor: '#FAF6F0' }}>
+            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '1rem', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <HelpCircle style={{ width: 18, height: 18, color: '#F95700' }} />
+              Fixação Rápida
+            </h3>
 
             {selectedLesson.quickQuestions && selectedLesson.quickQuestions.length > 0 ? (
-              <form onSubmit={handleFixacaoSubmit} className="space-y-4">
-                <p className="text-xs text-slate-700 font-medium leading-relaxed">
+              <form onSubmit={handleFixacaoSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <p style={{ fontSize: '0.8rem', color: '#334155', fontWeight: 600 }}>
                   {selectedLesson.quickQuestions[0].question}
                 </p>
 
-                {/* Question Options */}
-                <div className="space-y-2">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {selectedLesson.quickQuestions[0].options?.map(opt => (
                     <label
                       key={opt.id}
-                      className={`flex items-center gap-2.5 p-3 rounded-xl border text-xs cursor-pointer transition-all ${
-                        selectedOption === opt.id
-                          ? 'bg-white border-[#F95700] ring-1 ring-[#F95700] font-bold text-slate-900'
-                          : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
-                      }`}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        padding: 10,
+                        borderRadius: 10,
+                        border: selectedOption === opt.id ? '1px solid #F95700' : '1px solid #E2E8F0',
+                        background: '#ffffff',
+                        fontSize: '0.75rem',
+                        cursor: 'pointer'
+                      }}
                     >
                       <input
                         type="radio"
@@ -326,7 +212,6 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
                         value={opt.id}
                         checked={selectedOption === opt.id}
                         onChange={() => setSelectedOption(opt.id)}
-                        className="accent-[#F95700]"
                       />
                       <span>{opt.text}</span>
                     </label>
@@ -336,32 +221,36 @@ export const PlayerView: React.FC<PlayerViewProps> = ({
                 <button
                   type="submit"
                   disabled={!selectedOption}
-                  className={`w-full py-2.5 px-4 rounded-xl font-bold text-xs uppercase tracking-wider transition-all ${
-                    selectedOption
-                      ? 'bg-[#00529C] hover:bg-[#003F78] text-white shadow-xs'
-                      : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                  }`}
+                  style={{
+                    padding: 10,
+                    borderRadius: 10,
+                    background: selectedOption ? '#00529C' : '#CBD5E1',
+                    color: '#ffffff',
+                    fontWeight: 800,
+                    fontSize: '0.75rem',
+                    border: 'none',
+                    cursor: selectedOption ? 'pointer' : 'not-allowed'
+                  }}
                 >
                   RESPONDER
                 </button>
 
                 {fixacaoSubmitted && (
                   <div
-                    className={`p-3 rounded-xl text-xs ${
-                      fixacaoSuccess
-                        ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                        : 'bg-rose-50 text-rose-800 border border-rose-200'
-                    }`}
+                    style={{
+                      padding: 10,
+                      borderRadius: 10,
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      background: fixacaoSuccess ? '#D1FAE5' : '#FFE4E6',
+                      color: fixacaoSuccess ? '#065F46' : '#9F1239'
+                    }}
                   >
-                    {fixacaoSuccess
-                      ? '✓ Resposta Correta! Aula concluída.'
-                      : '✕ Resposta incorreta. Tente novamente!'}
+                    {fixacaoSuccess ? '✓ Resposta Correta! Aula concluída.' : '✕ Resposta incorreta. Tente novamente!'}
                   </div>
                 )}
               </form>
-            ) : (
-              <p className="text-xs text-slate-500">Nenhum exercício para esta aula.</p>
-            )}
+            ) : null}
           </div>
 
         </div>

@@ -20,7 +20,6 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
 
   const categories = ['Todos', 'Informática', 'Mobile', 'Sociedade', 'Programação', 'Design'];
 
-  // Filtered courses
   const filteredCourses = courses.filter(course => {
     const matchesSearch =
       course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -36,88 +35,76 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
   );
 
   return (
-    <div className="space-y-8 pb-12">
+    <div style={{ paddingBottom: '3rem' }}>
       
-      {/* Hero Banner (Matching Figma Mobile & Desktop Hero) */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#FF5500] to-[#E04B00] text-white p-6 sm:p-10 md:p-12 shadow-lg">
-        <div className="relative z-10 max-w-2xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-bold">
-            <Sparkles className="w-4 h-4 text-amber-300" />
+      {/* Hero Banner */}
+      <div className="hero-banner">
+        <div style={{ position: 'relative', zIndex: 10, maxWidth: 640 }}>
+          <div className="hero-tag">
+            <Sparkles style={{ width: 14, height: 14, color: '#FCD34D' }} />
             <span>Capacitação Acessível & Gratuita</span>
           </div>
 
-          <h1 className="font-extrabold text-3xl sm:text-4xl md:text-5xl font-['Outfit'] tracking-tight leading-tight">
+          <h1 className="hero-title">
             Bem-vindo ao Recife Digital
           </h1>
 
-          <p className="text-white/90 text-base sm:text-lg leading-relaxed">
+          <p className="hero-desc">
             Desenvolva novas habilidades tecnológicas e conecte-se com o futuro. Explore nossos cursos focados em inclusão digital e tecnologia.
           </p>
 
-          <div className="pt-4 flex flex-wrap items-center gap-4">
+          <div>
             <button
               onClick={() => {
                 if (courses.length > 0) onSelectCourse(courses[0]);
               }}
-              className="py-3.5 px-8 bg-white text-[#FF5500] hover:bg-slate-50 font-black text-base rounded-2xl shadow-md transition-all transform hover:-translate-y-0.5"
+              className="btn-primary"
             >
               Comece a Aprender
             </button>
           </div>
         </div>
-
-        {/* Decorative background shapes */}
-        <div className="absolute -right-12 -bottom-12 w-96 h-96 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-        <div className="absolute right-1/4 -top-12 w-64 h-64 bg-orange-300/20 rounded-full blur-xl pointer-events-none" />
       </div>
 
       {/* Search & Filter bar */}
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          {/* Category Chips */}
-          <div className="flex items-center gap-2 overflow-x-auto w-full pb-2 scrollbar-none">
-            {categories.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-                  selectedCategory === cat
-                    ? 'bg-[#00529C] text-white shadow-xs'
-                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
+      <div className="filter-bar">
+        {/* Category Chips */}
+        <div className="chips-wrapper">
+          {categories.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`chip-btn ${selectedCategory === cat ? 'active' : ''}`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
 
-          {/* Search Input */}
-          <div className="relative w-full sm:w-72 flex-shrink-0">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-            <input
-              type="text"
-              placeholder="Buscar por curso..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:outline-hidden focus:ring-2 focus:ring-[#FF5500]"
-            />
-          </div>
+        {/* Search Input */}
+        <div className="search-input-box">
+          <Search className="search-icon" />
+          <input
+            type="text"
+            placeholder="Buscar por curso..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="search-input"
+          />
         </div>
       </div>
 
       {/* Nível Básico Section */}
       {(selectedCategory === 'Todos' || basicCourses.length > 0) && (
-        <section className="space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
-            <h2 className="font-extrabold text-xl md:text-2xl text-slate-900 font-['Outfit'] flex items-center gap-2">
-              <span className="text-xl">🎓</span> Nível Básico
-            </h2>
-            <span className="text-xs text-slate-500 font-medium">
+        <section style={{ marginBottom: '2.5rem' }}>
+          <div className="section-title">
+            <span>🎓 Nível Básico</span>
+            <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 500 }}>
               {basicCourses.length} curso(s)
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="courses-grid">
             {basicCourses.map(course => (
               <CourseCard key={course.id} course={course} onSelectCourse={onSelectCourse} />
             ))}
@@ -127,17 +114,15 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
 
       {/* Nível Intermediário Section */}
       {(selectedCategory === 'Todos' || intermediateCourses.length > 0) && (
-        <section className="space-y-4 pt-6">
-          <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
-            <h2 className="font-extrabold text-xl md:text-2xl text-slate-900 font-['Outfit'] flex items-center gap-2">
-              <span className="text-xl">💻</span> Nível Intermediário & Avançado
-            </h2>
-            <span className="text-xs text-slate-500 font-medium">
+        <section style={{ marginBottom: '2.5rem' }}>
+          <div className="section-title">
+            <span>💻 Nível Intermediário & Avançado</span>
+            <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 500 }}>
               {intermediateCourses.length} curso(s)
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="courses-grid">
             {intermediateCourses.map(course => (
               <CourseCard key={course.id} course={course} onSelectCourse={onSelectCourse} />
             ))}
@@ -146,16 +131,10 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
       )}
 
       {/* Footer Section */}
-      <footer className="mt-16 pt-8 border-t border-slate-200 text-slate-500 text-xs flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center space-x-4">
-          <img src="/recife_azul_sobre_branco.png" alt="Prefeitura do Recife" className="h-7 w-auto object-contain opacity-85" />
-          <img src="/logoSchool.svg" alt="CESAR School" className="h-6 w-auto object-contain opacity-85" />
-        </div>
-        <div className="flex items-center space-x-6">
-          <a href="#" className="hover:text-slate-800 transition-colors">Privacidade</a>
-          <a href="#" className="hover:text-slate-800 transition-colors">Termos de Uso</a>
-          <a href="#" className="hover:text-slate-800 transition-colors">Suporte</a>
-          <a href="#" className="hover:text-slate-800 transition-colors">Sobre o Recife Digital</a>
+      <footer style={{ marginTop: '3rem', paddingTop: '1.5rem', borderTop: '1px solid #E2E8F0', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, fontSize: '0.75rem', color: '#64748B' }}>
+        <div className="partner-logos" style={{ paddingLeft: 0, borderLeft: 'none' }}>
+          <img src="/recife_azul_sobre_branco.png" alt="Prefeitura do Recife" className="partner-logo-img" />
+          <img src="/logoSchool.svg" alt="CESAR School" className="partner-logo-img" />
         </div>
         <p>© 2026 Prefeitura do Recife & CESAR School. Todos os direitos reservados.</p>
       </footer>

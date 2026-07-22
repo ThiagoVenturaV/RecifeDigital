@@ -1,0 +1,51 @@
+/* CertificatesView Component Styles */
+.cert-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.cert-page-title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 900;
+  font-size: 2rem;
+  color: var(--text-main, #0f172a);
+}
+
+.cert-page-subtitle {
+  color: var(--text-muted, #475569);
+  font-size: 0.85rem;
+  margin-top: 4px;
+  max-width: 600px;
+}
+
+.cert-stat-banner {
+  background: linear-gradient(135deg, var(--secondary, #00529C) 0%, #003F78 100%);
+  border-radius: 24px;
+  padding: 24px;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 8px 20px rgba(0, 82, 156, 0.2);
+}
+
+.cert-stat-num {
+  font-weight: 900;
+  font-size: 2.5rem;
+  display: block;
+  margin-top: 4px;
+}
+
+.cert-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

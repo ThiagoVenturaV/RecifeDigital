@@ -17,49 +17,49 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
   const totalHoursCompleted = certificates.reduce((acc, c) => acc + c.workloadHours, 0);
 
   return (
-    <div className="space-y-8 pb-12">
+    <div style={{ paddingBottom: '3rem' }}>
       
       {/* Student Profile Banner */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 shadow-2xs flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="flex items-center gap-5">
+      <div className="card-details-box" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20, marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
           <img
             src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
             alt="Thiago Ventura"
-            className="w-20 h-20 rounded-full object-cover ring-4 ring-orange-500/20 shadow-md"
+            style={{ width: 72, height: 72, borderRadius: '50%', objectFit: 'cover' }}
           />
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="font-extrabold text-2xl md:text-3xl text-slate-900 font-['Outfit']">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: '1.8rem' }}>
                 Thiago Ventura
               </h1>
-              <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+              <span style={{ padding: '2px 10px', borderRadius: 9999, background: '#D1FAE5', color: '#065F46', fontSize: '0.7rem', fontWeight: 800 }}>
                 Aluno Ativo
               </span>
             </div>
-            <p className="text-slate-500 text-xs mt-1">
+            <p style={{ color: '#64748B', fontSize: '0.75rem', marginTop: 4 }}>
               Matrícula Conecta Recife: #8849-2026 • Recife, Pernambuco
             </p>
           </div>
         </div>
 
         {/* Quick Badges */}
-        <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100 w-full md:w-auto justify-around">
-          <div className="text-center px-3">
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+        <div style={{ display: 'flex', gap: 20, background: '#F8FAFC', padding: 12, borderRadius: 16, border: '1px solid #E2E8F0' }}>
+          <div style={{ textAlign: 'center' }}>
+            <span style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 800, textTransform: 'uppercase' }}>
               Horas Estudadas
             </span>
-            <span className="font-black text-2xl text-[#F95700] mt-0.5 block">
+            <span style={{ fontWeight: 900, fontSize: '1.5rem', color: '#F95700', display: 'block' }}>
               {totalHoursCompleted + 45}h
             </span>
           </div>
 
-          <div className="h-8 w-px bg-slate-200" />
+          <div style={{ width: 1, background: '#E2E8F0' }} />
 
-          <div className="text-center px-3">
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+          <div style={{ textAlign: 'center' }}>
+            <span style={{ fontSize: '0.65rem', color: '#64748B', fontWeight: 800, textTransform: 'uppercase' }}>
               Certificados
             </span>
-            <span className="font-black text-2xl text-[#00529C] mt-0.5 block">
+            <span style={{ fontWeight: 900, fontSize: '1.5rem', color: '#00529C', display: 'block' }}>
               {certificates.length}
             </span>
           </div>
@@ -67,68 +67,69 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
       </div>
 
       {/* Stats Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-2">
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-bold uppercase tracking-wider">Cursos em Andamento</span>
-            <BookOpen className="w-5 h-5 text-[#F95700]" />
+      <div className="courses-grid" style={{ marginBottom: 24 }}>
+        <div className="stat-box">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#64748B', fontSize: '0.75rem', fontWeight: 700 }}>
+            <span>Cursos em Andamento</span>
+            <BookOpen style={{ width: 18, height: 18, color: '#F95700' }} />
           </div>
-          <span className="font-black text-3xl text-slate-900 block">
+          <span style={{ fontWeight: 900, fontSize: '2rem', color: '#0f172a', display: 'block', marginTop: 8 }}>
             {enrolledCourses.length}
           </span>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-2">
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-bold uppercase tracking-wider">Média de Desempenho</span>
-            <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
+        <div className="stat-box">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#64748B', fontSize: '0.75rem', fontWeight: 700 }}>
+            <span>Média de Desempenho</span>
+            <Star style={{ width: 18, height: 18, color: '#F59E0B' }} />
           </div>
-          <span className="font-black text-3xl text-emerald-600 block">
+          <span style={{ fontWeight: 900, fontSize: '2rem', color: '#10B981', display: 'block', marginTop: 8 }}>
             9.7 / 10
           </span>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-2">
-          <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-bold uppercase tracking-wider">Nível da Jornada</span>
-            <Sparkles className="w-5 h-5 text-purple-600" />
+        <div className="stat-box">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#64748B', fontSize: '0.75rem', fontWeight: 700 }}>
+            <span>Nível da Jornada</span>
+            <Sparkles style={{ width: 18, height: 18, color: '#7C3AED' }} />
           </div>
-          <span className="font-black text-2xl text-purple-700 block">
+          <span style={{ fontWeight: 900, fontSize: '1.5rem', color: '#7C3AED', display: 'block', marginTop: 8 }}>
             Intermediário
           </span>
         </div>
       </div>
 
       {/* Active Courses Progress Detailed */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 shadow-2xs space-y-6">
-        <h2 className="font-extrabold text-xl text-slate-900 font-['Outfit']">
+      <div className="card-details-box">
+        <h2 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '1.3rem', marginBottom: 16 }}>
           Progresso Detalhado dos Cursos
         </h2>
 
-        <div className="space-y-6">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {enrolledCourses.map(course => (
-            <div key={course.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div key={course.id} style={{ padding: 16, borderRadius: 16, background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, flexWrap: 'wrap', gap: 8 }}>
                 <div>
-                  <h3 className="font-bold text-base text-slate-900">{course.title}</h3>
-                  <span className="text-xs text-slate-500">{course.category} • {course.workloadHours}h</span>
+                  <h3 style={{ fontWeight: 800, fontSize: '1rem' }}>{course.title}</h3>
+                  <span style={{ fontSize: '0.75rem', color: '#64748B' }}>{course.category} • {course.workloadHours}h</span>
                 </div>
                 <button
                   onClick={() => onSelectCourse(course)}
-                  className="py-2 px-4 bg-[#F95700] hover:bg-[#E04B00] text-white font-bold text-xs rounded-xl transition-colors self-start sm:self-auto"
+                  className="btn-card-action"
+                  style={{ marginTop: 0, width: 'auto', padding: '6px 14px', fontSize: '0.75rem' }}
                 >
                   Continuar Aula
                 </button>
               </div>
 
-              <div className="space-y-1.5">
-                <div className="flex justify-between text-xs font-bold text-slate-700">
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700, marginBottom: 4 }}>
                   <span>Concluído</span>
                   <span>{course.progressPercent}%</span>
                 </div>
-                <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                <div className="progress-bar-bg">
                   <div
-                    className="bg-[#F95700] h-full rounded-full transition-all duration-500"
+                    className="progress-bar-fill"
                     style={{ width: `${course.progressPercent}%` }}
                   />
                 </div>

@@ -40,97 +40,81 @@ export const PWAInstallModal: React.FC<PWAInstallModalProps> = ({ isOpen, onClos
   };
 
   const handleDismiss = () => {
-    Cookies.set('pwa_modal_dismissed', 'true', { expires: 7 }); // Remember for 7 days
+    Cookies.set('pwa_modal_dismissed', 'true', { expires: 7 });
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs">
-      <div className="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl border border-slate-200 relative animate-in fade-in zoom-in-95 duration-200">
+    <div className="modal-overlay">
+      <div className="modal-content">
         
         {/* Close button */}
-        <button
-          onClick={handleDismiss}
-          className="absolute top-5 right-5 p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-colors"
-        >
-          <X className="w-5 h-5" />
+        <button onClick={handleDismiss} className="close-btn">
+          <X style={{ width: 20, height: 20 }} />
         </button>
 
         {/* Modal Header */}
-        <div className="flex items-center gap-4">
-          <img src="/recife_azul_sobre_branco.png" alt="Recife Digital" className="h-10 w-auto" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <img src="/recife_azul_sobre_branco.png" alt="Recife Digital" style={{ height: 36, width: 'auto' }} />
           <div>
-            <span className="text-[10px] font-bold text-[#F95700] uppercase tracking-widest block">
+            <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#F95700', textTransform: 'uppercase', display: 'block' }}>
               APLICATIVO OFICIAL
             </span>
-            <h3 className="font-extrabold text-xl text-slate-900 font-['Outfit']">
+            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '1.2rem' }}>
               Instalar Recife Digital
             </h3>
           </div>
         </div>
 
         {/* Detected Device Tag */}
-        <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-[#00529C] rounded-full text-xs font-bold">
-          {device.isIOS && <Smartphone className="w-3.5 h-3.5" />}
-          {device.isAndroid && <Smartphone className="w-3.5 h-3.5" />}
-          {device.isDesktop && <Laptop className="w-3.5 h-3.5" />}
+        <div style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 9999, background: '#EFF6FF', color: '#00529C', fontSize: '0.75rem', fontWeight: 700 }}>
+          {device.isIOS && <Smartphone style={{ width: 14, height: 14 }} />}
+          {device.isAndroid && <Smartphone style={{ width: 14, height: 14 }} />}
+          {device.isDesktop && <Laptop style={{ width: 14, height: 14 }} />}
           <span>
-            Dispositivo detectado: {device.isIOS ? 'iPhone / iPad (iOS)' : device.isAndroid ? 'Android' : 'Computador (Desktop)'} ({device.browserName})
+            {device.isIOS ? 'iPhone / iPad (iOS)' : device.isAndroid ? 'Android' : 'Computador (Desktop)'} ({device.browserName})
           </span>
         </div>
 
-        {/* Dynamic Tutorial Steps based on Device */}
-        <div className="mt-6 space-y-4">
-          <h4 className="font-bold text-sm text-slate-800">
+        {/* Dynamic Tutorial Steps */}
+        <div style={{ marginTop: 20 }}>
+          <h4 style={{ fontWeight: 800, fontSize: '0.85rem', marginBottom: 12 }}>
             Tutorial de Instalação Rápida:
           </h4>
 
           {device.isIOS && (
-            <ol className="space-y-3 text-xs text-slate-700">
-              <li className="flex items-start gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                <span className="w-6 h-6 rounded-full bg-[#F95700] text-white font-bold flex items-center justify-center flex-shrink-0">1</span>
-                <div>
-                  <strong>Toque no botão Compartilhar:</strong> No rodapé do seu navegador Safari, toque no ícone com um quadrado e uma seta para cima (<Share className="w-3.5 h-3.5 inline text-[#00529C]" />).
-                </div>
+            <ol style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10, fontSize: '0.75rem', color: '#334155' }}>
+              <li style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: 10, background: '#F8FAFC', borderRadius: 12, border: '1px solid #E2E8F0' }}>
+                <span style={{ width: 20, height: 20, borderRadius: '50%', background: '#F95700', color: '#ffffff', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>1</span>
+                <div><strong>Toque no botão Compartilhar:</strong> No rodapé do Safari (<Share style={{ width: 14, height: 14, display: 'inline', color: '#00529C' }} />).</div>
               </li>
-              <li className="flex items-start gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                <span className="w-6 h-6 rounded-full bg-[#F95700] text-white font-bold flex items-center justify-center flex-shrink-0">2</span>
-                <div>
-                  <strong>Selecione "Adicionar à Tela de Início":</strong> Role a lista de opções para baixo e toque em <PlusSquare className="w-3.5 h-3.5 inline text-emerald-600" /> "Adicionar à Tela de Início".
-                </div>
-              </li>
-              <li className="flex items-start gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                <span className="w-6 h-6 rounded-full bg-[#F95700] text-white font-bold flex items-center justify-center flex-shrink-0">3</span>
-                <div>
-                  <strong>Confirme:</strong> Toque em "Adicionar" no canto superior direito. O ícone do Recife Digital surgirá na tela inicial!
-                </div>
+              <li style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: 10, background: '#F8FAFC', borderRadius: 12, border: '1px solid #E2E8F0' }}>
+                <span style={{ width: 20, height: 20, borderRadius: '50%', background: '#F95700', color: '#ffffff', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>2</span>
+                <div><strong>Selecione "Adicionar à Tela de Início":</strong> Toque em <PlusSquare style={{ width: 14, height: 14, display: 'inline', color: '#10B981' }} /> "Adicionar à Tela de Início".</div>
               </li>
             </ol>
           )}
 
           {device.isAndroid && (
-            <div className="space-y-3">
+            <div>
               {deferredPrompt ? (
                 <button
                   onClick={handleInstallClick}
-                  className="w-full py-3.5 px-6 bg-[#F95700] hover:bg-[#E04B00] text-white font-extrabold text-sm rounded-2xl shadow-md transition-all flex items-center justify-center gap-2"
+                  className="btn-card-action"
+                  style={{ padding: '12px 20px', fontSize: '0.85rem' }}
                 >
-                  <Download className="w-5 h-5" />
+                  <Download style={{ width: 18, height: 18 }} />
                   <span>INSTALAR APLICATIVO AGORA</span>
                 </button>
               ) : (
-                <ol className="space-y-3 text-xs text-slate-700">
-                  <li className="flex items-start gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                    <span className="w-6 h-6 rounded-full bg-[#F95700] text-white font-bold flex items-center justify-center flex-shrink-0">1</span>
-                    <div>
-                      <strong>Abra o menu do Chrome:</strong> Toque no ícone de três pontos (<MoreVertical className="w-3.5 h-3.5 inline text-slate-700" />) no canto superior direito.
-                    </div>
+                <ol style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10, fontSize: '0.75rem', color: '#334155' }}>
+                  <li style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: 10, background: '#F8FAFC', borderRadius: 12, border: '1px solid #E2E8F0' }}>
+                    <span style={{ width: 20, height: 20, borderRadius: '50%', background: '#F95700', color: '#ffffff', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>1</span>
+                    <div><strong>Abra o menu do Chrome:</strong> Toque no ícone (<MoreVertical style={{ width: 14, height: 14, display: 'inline' }} />).</div>
                   </li>
-                  <li className="flex items-start gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                    <span className="w-6 h-6 rounded-full bg-[#F95700] text-white font-bold flex items-center justify-center flex-shrink-0">2</span>
-                    <div>
-                      <strong>Toque em "Instalar aplicativo":</strong> Selecione a opção "Instalar aplicativo" ou "Adicionar à tela inicial".
-                    </div>
+                  <li style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: 10, background: '#F8FAFC', borderRadius: 12, border: '1px solid #E2E8F0' }}>
+                    <span style={{ width: 20, height: 20, borderRadius: '50%', background: '#F95700', color: '#ffffff', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>2</span>
+                    <div><strong>Toque em "Instalar aplicativo":</strong> Selecione "Instalar aplicativo".</div>
                   </li>
                 </ol>
               )}
@@ -138,28 +122,21 @@ export const PWAInstallModal: React.FC<PWAInstallModalProps> = ({ isOpen, onClos
           )}
 
           {device.isDesktop && (
-            <div className="space-y-3">
+            <div>
               {deferredPrompt ? (
                 <button
                   onClick={handleInstallClick}
-                  className="w-full py-3.5 px-6 bg-[#F95700] hover:bg-[#E04B00] text-white font-extrabold text-sm rounded-2xl shadow-md transition-all flex items-center justify-center gap-2"
+                  className="btn-card-action"
+                  style={{ padding: '12px 20px', fontSize: '0.85rem' }}
                 >
-                  <Download className="w-5 h-5" />
-                  <span>INSTALAR APPLICATIVO NO COMPUTADOR</span>
+                  <Download style={{ width: 18, height: 18 }} />
+                  <span>INSTALAR APLICATIVO NO COMPUTADOR</span>
                 </button>
               ) : (
-                <ol className="space-y-3 text-xs text-slate-700">
-                  <li className="flex items-start gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                    <span className="w-6 h-6 rounded-full bg-[#F95700] text-white font-bold flex items-center justify-center flex-shrink-0">1</span>
-                    <div>
-                      <strong>Barra de Endereços:</strong> Clique no ícone de instalação (<Download className="w-3.5 h-3.5 inline text-[#00529C]" />) localizado no lado direito da barra de endereço do seu navegador.
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                    <span className="w-6 h-6 rounded-full bg-[#F95700] text-white font-bold flex items-center justify-center flex-shrink-0">2</span>
-                    <div>
-                      <strong>Clique em "Instalar":</strong> Confirme na janela pop-up para acessar o Recife Digital como um aplicativo nativo desktop.
-                    </div>
+                <ol style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10, fontSize: '0.75rem', color: '#334155' }}>
+                  <li style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: 10, background: '#F8FAFC', borderRadius: 12, border: '1px solid #E2E8F0' }}>
+                    <span style={{ width: 20, height: 20, borderRadius: '50%', background: '#F95700', color: '#ffffff', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>1</span>
+                    <div><strong>Barra de Endereços:</strong> Clique no ícone de instalação (<Download style={{ width: 14, height: 14, display: 'inline', color: '#00529C' }} />) no navegador.</div>
                   </li>
                 </ol>
               )}
@@ -168,17 +145,17 @@ export const PWAInstallModal: React.FC<PWAInstallModalProps> = ({ isOpen, onClos
         </div>
 
         {installedSuccess && (
-          <div className="mt-4 p-3 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs flex items-center gap-2 font-bold">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          <div style={{ marginTop: 16, padding: 10, background: '#D1FAE5', color: '#065F46', borderRadius: 10, fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <CheckCircle2 style={{ width: 16, height: 16 }} />
             <span>Aplicativo instalado com sucesso!</span>
           </div>
         )}
 
         {/* Actions Footer */}
-        <div className="mt-6 pt-4 border-t border-slate-100 flex justify-end">
+        <div style={{ marginTop: 20, paddingTop: 12, borderTop: '1px solid #F1F5F9', textAlign: 'right' }}>
           <button
             onClick={handleDismiss}
-            className="py-2.5 px-5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-colors"
+            style={{ padding: '8px 16px', background: '#F1F5F9', color: '#334155', fontWeight: 700, fontSize: '0.75rem', borderRadius: 10, border: 'none', cursor: 'pointer' }}
           >
             Entendi, Fechar
           </button>
